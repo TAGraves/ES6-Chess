@@ -13,8 +13,8 @@ module.exports = class Knight extends Piece {
         !Game.moveWillPutOwnerInCheck(this, location)
         && !location.occupant.owner === this.owner
         && (
-          (Board.verticalOffset(this.location, location) === 2 && Board.horizontalOffset(this.location, location) === 1)
-          || (Board.verticalOffset(this.location, location) === 1 && Board.horizontalOffset(this.location, location) === 2)
+          (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1)
+          || (this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)
         )
       ){
         Board.setLocation(this, location);

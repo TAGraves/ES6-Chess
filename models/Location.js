@@ -19,19 +19,28 @@ module.exports = class Location {
       up: function () {
         
       }
-    }
-    
-    this.isDiagonalTo = function (location) {;
-      return Math.abs(this.column - location.column) === Math.abs(this.row - location.row);
-    };
-    
-    this.isCardinalTo = function (location) {
-      return (this.column === location.column) || (this.row === location.row);
     };
     
     this.offset = function (location) {
-      return Math.abs(this.column - location.column) || Math.abs(this.row - location.row);
+      return this.offset.vertical(location) || this.offset.horizontal(location);
     };
+    
+    this.offset.vertical = function (location) {
+      return Math.abs(this.row - location.row);
+    };
+    
+    this.offset.horizontal = function (location) {
+      return Math.abs(this.column - location.column);
+    };
+
+    this.isDiagonalTo = function (location) {
+      return this.offset.vertical(location) === this.offset.horizontal(location);
+    };
+    
+    this.isCardinalTo = function (location) {
+      return this.offset.vertical(location) === 0 || this.offset.horizontal(location) === 0;
+    };
+    
   }
   
   get isOccupied() {
