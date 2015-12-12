@@ -1,5 +1,5 @@
-import Board from "Board"
-import Players from "Players"
+import Board from "Board";
+import Players from "Players";
 
 export class Piece {
   constructor() {
