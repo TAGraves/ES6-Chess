@@ -1,11 +1,14 @@
-import King from "King";
-import Queen from "Queen";
-import Rook from "Rook";
-import Bishop from "Bishop";
-import Knight from "Knight";
-import Pawn from "Pawn";
+"use strict";
 
-export Pieces = {
+var King = require("./King");
+var Queen = require("./Queen");
+var Rook = require("./Rook");
+var Bishop = require("./Bishop");
+var Knight = require("./Knight");
+var Pawn = require("./Pawn");
+
+
+var Pieces = module.exports = {
   King: King,
   Queen: Queen,
   Rook: Rook,

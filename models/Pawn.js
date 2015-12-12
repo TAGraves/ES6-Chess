@@ -1,10 +1,12 @@
-import Board from "Board"
-import Players from "Players"
-import Game from "Game"
-import Piece from "Piece"
+"use strict";
 
-export class Pawn extends Piece {
-  constructor {
+var Board = require("./Board");
+var Players = require("./Players");
+var Game = require ("./Game");
+var Piece = require ("./Piece");
+
+module.exports = class Pawn extends Piece {
+  constructor () {
     this.moveTo = function (location) {
       var offset = Board.offset(this.location, location);
       var moveSucceeded = false;

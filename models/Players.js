@@ -1,11 +1,13 @@
-Class Player = {
+"use strict";
+
+class Player {
   constructor(id) {
     this.id = id,
     home = "";
   }
 }
 
-export Players = {
+var Players = module.exports = {
   none: {},
   otherPlayer: function (player) {}
-}
+};

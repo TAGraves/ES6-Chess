@@ -1,7 +1,8 @@
-import Players from "Players";
-import Location from "Location";
+"use strict";
+var Players = require("./Players");
+var Location = require("./Location");
 
-export Board = {
+var Board = module.exports = {
 
   state: (function generateBoard () {
     let rows = [];
@@ -29,4 +30,4 @@ export Board = {
   isCardinal: function (location1, location2) {},
   isHorizontal: function (location1, location2) {},
   isOccupied: function (location) {}
-}
+};

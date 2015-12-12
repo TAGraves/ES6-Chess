@@ -1,10 +1,12 @@
-import Board from "Board"
-import Players from "Players"
-import Game from "Game"
-import Piece from "Piece"
+"use strict";
 
-export class King extends Piece {
-  constructor {
+var Board = require("./Board");
+var Players = require("./Players");
+var Game = require ("./Game");
+var Piece = require ("./Piece");
+
+module.exports = class King extends Piece {
+  constructor () {
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
@@ -28,7 +30,7 @@ export class King extends Piece {
         && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
       ) {
         Board.setLocation(this, location, false);
-        Board.setLocation(rook, Board.traverse(location, 1, Board.oppositeDirection(direction));
+        Board.setLocation(rook, Board.traverse(location, 1, Board.oppositeDirection(direction)));
       } else {
         Game.throwError.illegalMove();
       }

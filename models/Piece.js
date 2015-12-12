@@ -1,10 +1,12 @@
-import Board from "Board";
-import Players from "Players";
+"use strict";
 
-export class Piece {
+var Board = require("./Board");
+var Players = require("./Players");
+
+module.exports = class Piece {
   constructor() {
     this.location = Board.off;
     this.owner = Players.none;
     this.lastMove = false;
   }
-}
+};
