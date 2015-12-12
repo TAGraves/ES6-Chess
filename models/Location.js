@@ -21,14 +21,16 @@ module.exports = class Location {
       }
     }
     
-    this.isDiagonalTo = function (location) {
-      let columnOffset = Math.abs(this.column - location.column),
-          rowOffset = Math.abs(this.row - location.row);
-      return columnOffset === rowOffset;
+    this.isDiagonalTo = function (location) {;
+      return Math.abs(this.column - location.column) === Math.abs(this.row - location.row);
     };
     
     this.isCardinalTo = function (location) {
-      return ( (this.column === location.column) || (this.row === location.row) );
+      return (this.column === location.column) || (this.row === location.row);
+    };
+    
+    this.offset = function (location) {
+      return Math.abs(this.column - location.column) || Math.abs(this.row - location.row);
     };
   }
   

@@ -9,7 +9,7 @@ module.exports = class Pawn extends Piece {
   constructor (location, owner) {
     super(location, owner);
     this.moveTo = function (location) {
-      var offset = Board.offset(this.location, location);
+      var offset = this.location.offset(location);
       var moveSucceeded = false;
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
@@ -32,7 +32,7 @@ module.exports = class Pawn extends Piece {
             this.justMovedTwo = true;
             moveSucceeded = true;
           } 
-        } else if (Board.isDiagonal(this.location, location) && offset === 1) {
+        } else if (this.location.isDiagonal(location) && offset === 1) {
           if (location.isOccupied && !location.occupant.owner === this.owner) {
             this.hasMoved = true;
             Board.setLocation(this, location);
