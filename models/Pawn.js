@@ -34,7 +34,7 @@ export class Pawn extends Piece {
             this.hasMoved = true;
             Board.setLocation(this, location);
             moveSucceded = true;
-          } else if (Board.isEmpty(location) && Board.pieceAt( Board.traverse(location, 1, this.owner.home) ).justMovedTwo) { //en passant
+          } else if (!Board.isOccupied(location) && Board.pieceAt( Board.traverse(location, 1, this.owner.home) ).justMovedTwo) { //en passant
             this.hasMoved = true;
             Board.setLocation(this, location);
             moveSucceeded = true;
