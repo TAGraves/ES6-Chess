@@ -8,15 +8,16 @@ var Board = module.exports = {
     let rows = [];
     for (let i = 0; i < 8; i++) {
       let column = [];
-      for (let i = 0; i < 8; i++) {
-        column.push(new Location());
+      for (let j = 0; j < 8; j++) {
+        let alphabet = "abcdefgh";
+        let name = alphabet.charAt(j) + (i+1).toString();
+        column.push(new Location(name, i, j));
       }
       rows.push(column);
     }
     return rows;
   })(),
-  
-  pieceAt: function (location) {},
+  off: new Location("off", -1, -1),
   offset: function (location1, location2) {},
   setLocation: function (piece, location) {},
   horizontalDirection: function (location1, location2) {},
@@ -28,6 +29,8 @@ var Board = module.exports = {
   isVertical: function (location1, location2) {},
   isDiagonal: function (location1, location2) {},
   isCardinal: function (location1, location2) {},
-  isHorizontal: function (location1, location2) {},
-  isOccupied: function (location) {}
+  isHorizontal: function (location1, location2) {}
 };
+
+console.log(Board.state);
+console.log(Board.state[0][0].isOccupied);

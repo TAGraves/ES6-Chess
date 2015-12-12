@@ -6,7 +6,8 @@ var Game = require ("./Game");
 var Piece = require ("./Piece");
 
 module.exports = class Pawn extends Piece {
-  constructor () {
+  constructor (location, owner) {
+    super(location, owner);
     this.moveTo = function (location) {
       var offset = Board.offset(this.location, location);
       var moveSucceeded = false;
@@ -16,13 +17,13 @@ module.exports = class Pawn extends Piece {
         && offset < 3
       ){
         if (Board.isVertical(this.location, location)) {
-          if (offset === 1 && !Board.isOccupied(location)) { //move one forward
+          if (offset === 1 && !location.isOccupied) { //move one forward
             this.hasMoved = true;
             Board.setLocation(this, location);
             moveSucceeded = true;
           } else if ( //move two forward
             offset === 2
-            && !Board.isOccupied(location)
+            && !location.isOccupied
             && !Board.pathIsOccupied(this.location, location)
             && this.hasMoved === false
           ){
@@ -32,11 +33,11 @@ module.exports = class Pawn extends Piece {
             moveSucceeded = true;
           } 
         } else if (Board.isDiagonal(this.location, location) && offset === 1) {
-          if (Board.isOccupied(location) && !Board.pieceAt(location).owner === this.owner) {
+          if (location.isOccupied && !location.occupant.owner === this.owner) {
             this.hasMoved = true;
             Board.setLocation(this, location);
             moveSucceded = true;
-          } else if (!Board.isOccupied(location) && Board.pieceAt( Board.traverse(location, 1, this.owner.home) ).justMovedTwo) { //en passant
+          } else if (!Board.isOccupied(location) && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) { //en passant
             this.hasMoved = true;
             Board.setLocation(this, location);
             moveSucceeded = true;

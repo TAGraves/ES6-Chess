@@ -6,11 +6,12 @@ var Game = require ("./Game");
 var Piece = require ("./Piece");
 
 module.exports = class King extends Piece {
-  constructor () {
+  constructor (location, owner) {
+    super(location, owner);
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
-        && !Board.pieceAt(location).owner === this.owner
+        && !location.occupant.owner === this.owner
         && Board.offset(this.location, location) === 1
       ){
         Board.setLocation(this, location);

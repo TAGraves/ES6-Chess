@@ -6,13 +6,14 @@ var Game = require ("./Game");
 var Piece = require ("./Piece");
 
 module.exports = class Bishop extends Piece {
-  constructor () {
+  constructor (location, owner) {
+    super(location, owner);
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
-        && Board.isDiagonal(this.location, location) 
+        && this.location.isDiagonalTo(location) 
         && !Board.pathIsOccupied(this.location, location)
-        && !Board.pieceAt(location).owner === this.owner
+        && !location.occupant.owner === this.owner
       ){
         Board.setLocation(this, location);
       } else {
