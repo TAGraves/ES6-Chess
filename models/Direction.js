@@ -10,7 +10,7 @@ var Direction = module.exports =  {
   
   getCardinalDirection: function (location1, location2, orientation) {
     let orient = (orientation === "horizontal") ? "column" : "row";
-    let offset = location2[orient] - location1.[orient];
+    let offset = location2[orient] - location1[orient];
     if (offset > 0) {
       return (orientation === "horizontal") ? this.east : this.north;
     } else if (offset < 0) {

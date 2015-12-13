@@ -13,7 +13,7 @@ module.exports = class Pawn extends Piece {
       var moveSucceeded = false;
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
-        && this.location.getCardinalDirection(location) === Players.otherPlayer(this.owner).home
+        && this.location.getCardinalDirection(location) === this.owner.otherPlayer.home
         && offset < 3
       ){
         if (this.location.offset.horizontal(location) === 0) {

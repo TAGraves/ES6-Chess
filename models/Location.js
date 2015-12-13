@@ -8,19 +8,7 @@ module.exports = class Location {
     this.name = name;
     this.row = row;
     this.column = column;
-    this.occupant = null;
-    
-    this.go = {
-      right: function (steps) {
-        return Board.state[this.row, this.column + steps] || Board.off;
-      },
-      left: function (steps) {
-        return Board.state[this.row, this.column - steps] || Board.off;
-      },
-      up: function () {
-        
-      }
-    };
+    this.occupant = null;  
     
     this.offset = function (location) {
       return this.offset.vertical(location) || this.offset.horizontal(location);

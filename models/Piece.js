@@ -7,5 +7,6 @@ module.exports = class Piece {
     this.location = location;
     this.owner = owner;
     this.lastMove = false;
+    location.occupant = this;
   }
 };

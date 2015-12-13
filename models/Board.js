@@ -2,8 +2,14 @@
 var Location = require("./Location");
 
 var Board = module.exports = {
-
-  state: (function generateBoard () {
+  state: [],
+  off: new Location("off", -1, -1),
+  setLocation: function (piece, location) {
+    piece.location = location;
+    location.occupant = piece;
+    Board.updateView();
+  },
+  makeState: function generateBoard () {
     let rows = [];
     for (let i = 0; i < 8; i++) {
       let column = [];
@@ -14,10 +20,8 @@ var Board = module.exports = {
       }
       rows.push(column);
     }
-    return rows;
-  })(),
-  off: new Location("off", -1, -1),
-  setLocation: function (piece, location) {},
+    Board.state = rows;
+  },
   traverse: function (location, distance, direction) {
     let column = location.column,
         row = location.row;
@@ -55,5 +59,6 @@ var Board = module.exports = {
       if (Board.traverse(startLocation, i, direction).isOccupied) return true;
     }
     return false;
-  }
+  },
+  updateView: function () {}
 };
