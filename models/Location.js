@@ -42,8 +42,12 @@ module.exports = class Location {
       return this.offset.vertical(location) === 0 || this.offset.horizontal(location) === 0;
     };
     
-    this.getCardinalDirection = function (location, direction) {
-      return Direction.getCardinalDirection(this.location, location, direction);
+    this.getDirection = function (location) {
+      return Direction.getDirection(this, location);
+    }
+    
+    this.getCardinalDirection = function (location, orientation) {
+      return Direction.getCardinalDirection(this, location, orientation);
     };
   }
   
