@@ -6,8 +6,8 @@ var Rook = require("./Rook");
 var Bishop = require("./Bishop");
 var Knight = require("./Knight");
 var Pawn = require("./Pawn");
+var Piece = require("./Piece");
 var Board = require("./Board");
-//var Players = require("./Players");
 
 var Pieces = module.exports = {
   King: King,

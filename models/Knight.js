@@ -9,8 +9,8 @@ module.exports = class Knight extends Piece {
     super(location, owner);
     this.moveTo = function (location) {
       if (
-        !Game.moveWillPutOwnerInCheck(this, location)
-        && !location.occupant.owner === this.owner
+        !Board.moveWillPutOwnerInCheck(this, location)
+        && location.occupant.owner !== this.owner
         && (
           (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1)
           || (this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)
@@ -25,9 +25,8 @@ module.exports = class Knight extends Piece {
   
   get threateningCheck() {
     let king = this.owner.otherPlayer.king;
-    
     if (
-      (this.location.offset.vertical(king.location) === 2 && this.location.offset.horizontal(location) === 1)
+      (this.location.offset.vertical(king.location) === 2 && this.location.offset.horizontal(king.location) === 1)
       || (this.location.offset.vertical(king.location) === 1 && this.location.offset.horizontal(king.location) === 2)
     ){
       return true;

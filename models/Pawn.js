@@ -1,8 +1,8 @@
 "use strict";
 
+var Game = require("./Game");
 var Board = require("./Board");
 var Players = require("./Players");
-var Game = require ("./Game");
 var Piece = require ("./Piece");
 
 module.exports = class Pawn extends Piece {
@@ -33,13 +33,17 @@ module.exports = class Pawn extends Piece {
             moveSucceeded = true;
           } 
         } else if (offset === 1) {
-          if (location.isOccupied && !location.occupant.owner === this.owner) { //capture
+          if (location.isOccupied && location.occupant.owner !== this.owner) { //capture
             this.hasMoved = true;
             Board.setLocation(this, location);
-            moveSucceded = true;
-          } else if (!Board.isOccupied(location) && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) { //en passant
+            moveSucceeded = true;
+          } else if (!location.isOccupied && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) { //en passant
             this.hasMoved = true;
+            let oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
+            oppOccupant.location.occupant = Board.dummyPiece; //hack to make sure piece gets captured
+            location.occupant = oppOccupant; //hack to make sure piece gets captured
             Board.setLocation(this, location);
+            console.log(oppOccupant);
             moveSucceeded = true;
           }
         }
@@ -57,7 +61,7 @@ module.exports = class Pawn extends Piece {
     if (
       (
         this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "west"
-        || this.location.getlDirection(king.location) === (this.owner.otherPlayer.home) + "east"
+        || this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "east"
       )
       && this.location.offset(king.location) === 1 
     ){

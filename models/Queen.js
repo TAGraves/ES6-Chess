@@ -15,7 +15,7 @@ module.exports = class Queen extends Piece {
           || this.location.isCardinalTo(location)
         )
         && !Board.pathIsOccupied(this.location, location)
-        && !location.occupant.owner === this.owner
+        && location.occupant.owner !== this.owner
       ){
         Board.setLocation(this, location);
       } else {
@@ -30,9 +30,9 @@ module.exports = class Queen extends Piece {
     if (
       (
         this.location.isDiagonalTo(king.location)
-        || this.location.isCardinallTo(king.location)
+        || this.location.isCardinalTo(king.location)
       )
-      && !Board.pathisOccupied(this.location, king.location) 
+      && !Board.pathIsOccupied(this.location, king.location) 
     ){
       return true;
     } else {

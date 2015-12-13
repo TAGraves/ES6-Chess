@@ -28,6 +28,8 @@ var Direction = module.exports =  {
     if (nsOffset < 0) direction += this.south;
     if (ewOffset > 0) direction += this.east;
     if (ewOffset < 0) direction += this.west;
+    
+    return direction;
   },
   
   reverse: function (direction) {

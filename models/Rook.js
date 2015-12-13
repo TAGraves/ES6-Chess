@@ -12,7 +12,7 @@ module.exports = class Rook extends Piece {
         !Game.moveWillPutOwnerInCheck(this, location)
         && this.location.isCardinalTo(location)
         && !Board.pathIsOccupied(this.location, location)
-        && !location.occupant.owner === this.owner
+        && location.occupant.owner !== this.owner
       ){
         Board.setLocation(this, location);
       } else {
@@ -22,9 +22,9 @@ module.exports = class Rook extends Piece {
   }
   
   get threateningCheck() {
-    let king = this.owner.otherPlayer.king;
     
-    if (this.location.isCardinalTo(king.location) && !Board.pathisOccupied(this.location, king.location)) {
+    let king = this.owner.otherPlayer.king;
+    if (this.location.isCardinalTo(king.location) && !Board.pathIsOccupied(this.location, king.location)) {
       return true;
     } else {
       return false;

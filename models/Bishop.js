@@ -12,7 +12,7 @@ module.exports = class Bishop extends Piece {
         !Game.moveWillPutOwnerInCheck(this, location)
         && this.location.isDiagonalTo(location) 
         && !Board.pathIsOccupied(this.location, location)
-        && !location.occupant.owner === this.owner
+        && location.occupant.owner !== this.owner
       ){
         Board.setLocation(this, location);
       } else {
@@ -24,7 +24,7 @@ module.exports = class Bishop extends Piece {
   get threateningCheck() {
     let king = this.owner.otherPlayer.king;
     
-    if (this.location.isDiagonalTo(king.location) && !Board.pathisOccupied(this.location, king.location)) {
+    if (this.location.isDiagonalTo(king.location) && !Board.pathIsOccupied(this.location, king.location)) {
       return true;
     } else {
       return false;

@@ -11,7 +11,7 @@ module.exports = class King extends Piece {
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
-        && !location.occupant.owner === this.owner
+        && location.occupant.owner !== this.owner
         && this.location.offset(location) === 1
       ){
         Board.setLocation(this, location);

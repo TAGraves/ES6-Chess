@@ -1,15 +1,9 @@
 "use strict";
 
-var Setup = require("./Setup");
 var Board = require("./Board");
 var Players = require("./Players");
-var Pieces = require("./Pieces");
 
 var Game = module.exports = {
-  beginGame: function () {
-    Setup();
-    Game.debug();
-  },
   moveWillPutOwnerInCheck: function (piece, location) {
     let formerOccupant = location.occupant;
     let formerLocation = piece.location;
@@ -34,11 +28,12 @@ var Game = module.exports = {
     return checked;
   },
   throwError: {
-    illegalMove: function () {}
+    illegalMove: function () {
+      console.log('illegal move!');
+    }
   },
   debug: function () {
-    console.log(Players.player1.king, Players.player2.king);
+    var Players = require("./Players");
+    var Pieces = require("./Pieces");
   }
 };
-
-Game.beginGame();

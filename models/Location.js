@@ -1,24 +1,25 @@
 "use strict";
 
-var Board = require("./Board");
-var Direction = require("./Direction");
-
 module.exports = class Location {
-  constructor(name, row, column) {
+  
+  constructor(name, row, column, occupant) {
+    var Board = require("./Board");
+    var Direction = require("./Direction");
+
     this.name = name;
     this.row = row;
     this.column = column;
-    this.occupant = null;  
+    this.occupant = occupant;  
     
     this.offset = function (location) {
       return this.offset.vertical(location) || this.offset.horizontal(location);
     };
     
-    this.offset.vertical = function (location) {
+    this.offset.vertical = (location) => {
       return Math.abs(this.row - location.row);
     };
     
-    this.offset.horizontal = function (location) {
+    this.offset.horizontal = (location) => {
       return Math.abs(this.column - location.column);
     };
 
@@ -40,7 +41,8 @@ module.exports = class Location {
   }
   
   get isOccupied() {
-    return this.occupant !== null;
+    var Board = require("./Board");
+    return this.occupant !== Board.dummyPiece;
   }
     
   

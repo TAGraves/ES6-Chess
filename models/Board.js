@@ -1,26 +1,32 @@
 "use strict";
 var Location = require("./Location");
+var Piece = require("./Piece");
 
 var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
+  dummyPiece: new Piece({}, {}),
   setLocation: function (piece, location) {
+    piece.location.occupant = Board.dummyPiece;
     piece.location = location;
+    if (location.occupant !== Board.dummyPiece) {
+      location.occupant.location = Board.off;
+    }
     location.occupant = piece;
     Board.updateView();
   },
-  makeState: function generateBoard () {
-    let rows = [];
+  makeState: function () {
+    let columns = [];
     for (let i = 0; i < 8; i++) {
-      let column = [];
+      let row = [];
       for (let j = 0; j < 8; j++) {
         let alphabet = "abcdefgh";
-        let name = alphabet.charAt(j) + (i+1).toString();
-        column.push(new Location(name, i, j));
+        let name = alphabet.charAt(i) + (j+1).toString();
+        row.push(new Location(name, j, i, Board.dummyPiece));
       }
-      rows.push(column);
+      columns.push(row);
     }
-    Board.state = rows;
+    Board.state = columns;
   },
   traverse: function (location, distance, direction) {
     let column = location.column,
@@ -42,13 +48,13 @@ var Board = module.exports = {
         return Board.state[column+distance][row+distance];
         break;
       case "northwest":
-        return Board.state[column+distance][row-distance];
+        return Board.state[column-distance][row+distance];
         break;
       case "southeast":
-        return Board.state[column-distance][row+distance];
+        return Board.state[column+distance][row-distance];
         break;
       case "southwest":
-        return Board.state[column-distance][row+distance];
+        return Board.state[column-distance][row-distance];
         break;
     }
   },
@@ -60,5 +66,29 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: function () {}
+  updateView: function () {},
+  moveWillPutOwnerInCheck: function (piece, location) {
+    let formerOccupant = location.occupant;
+    let formerLocation = piece.location;
+    let opponent = piece.owner.otherPlayer; 
+    let checked = false;
+    
+    if (formerOccupant !== null) formerOccupant.location = Board.off;
+    
+    piece.location = location;
+    location.occupant = piece;
+    
+    for (let piece of opponent.pieces) {
+      if (piece.location !== Board.off && piece.threateningCheck) {
+        checked = true;
+        break;
+      }
+    }
+
+    location.occupant = formerOccupant;
+    piece.location = formerLocation;
+    if (formerOccupant !== null) formerOccupant.location = location;
+    return checked;
+  }
+
 };
