@@ -13,10 +13,10 @@ module.exports = class Pawn extends Piece {
       var moveSucceeded = false;
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
-        && Board.verticalDirection(this.location, location) === Players.otherPlayer(this.owner).home
+        && this.location.getCardinalDirection(location) === Players.otherPlayer(this.owner).home
         && offset < 3
       ){
-        if (Board.isVertical(this.location, location)) {
+        if (this.location.offset.horizontal(location) === 0) {
           if (offset === 1 && !location.isOccupied) { //move one forward
             this.hasMoved = true;
             Board.setLocation(this, location);
@@ -32,7 +32,7 @@ module.exports = class Pawn extends Piece {
             this.justMovedTwo = true;
             moveSucceeded = true;
           } 
-        } else if (this.location.isDiagonal(location) && offset === 1) {
+        } else if (offset === 1) {
           if (location.isOccupied && !location.occupant.owner === this.owner) {
             this.hasMoved = true;
             Board.setLocation(this, location);

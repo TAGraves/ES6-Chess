@@ -1,6 +1,7 @@
 "use strict";
 
 var Board = require("./Board");
+var Direction = require("./Direction");
 
 module.exports = class Location {
   constructor(name, row, column) {
@@ -41,6 +42,9 @@ module.exports = class Location {
       return this.offset.vertical(location) === 0 || this.offset.horizontal(location) === 0;
     };
     
+    this.getCardinalDirection = function (location, direction) {
+      return Direction.getCardinalDirection(this.location, location, direction);
+    };
   }
   
   get isOccupied() {
