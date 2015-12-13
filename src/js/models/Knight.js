@@ -1,7 +1,7 @@
 "use strict";
 
-var Board = require("./Board");
-var Game = require ("./Game");
+var Board = require("../controllers/Board");
+var Game = require ("../controllers/Game");
 var Piece = require ("./Piece");
 
 module.exports = class Knight extends Piece {

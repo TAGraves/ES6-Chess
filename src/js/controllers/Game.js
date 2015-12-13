@@ -35,5 +35,9 @@ var Game = module.exports = {
   debug: function () {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
+    /*Players.player1.pieces[1].moveTo(Board.state[0][2]);
+    Players.player1.pieces[1].moveTo(Board.state[1][4]);
+    Players.player1.pieces[1].moveTo(Board.state[2][6]);
+    console.log(Players.player1.pieces[1].threateningCheck);*/
   }
 };

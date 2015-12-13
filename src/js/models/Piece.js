@@ -1,6 +1,6 @@
 "use strict";
 
-var Board = require("./Board");
+var Board = require("../controllers/Board");
 
 module.exports = class Piece {
   constructor(location, owner) {

@@ -1,6 +1,6 @@
 "use strict";
-var Location = require("./Location");
-var Piece = require("./Piece");
+var Location = require("../models/Location");
+var Piece = require("../models/Piece");
 
 var Board = module.exports = {
   state: [],

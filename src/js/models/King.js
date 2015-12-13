@@ -1,9 +1,9 @@
 "use strict";
 
-var Board = require("./Board");
-var Game = require ("./Game");
+var Board = require("../controllers/Board");
+var Game = require ("../controllers/Game");
 var Piece = require ("./Piece");
-var Direction = require ("./Direction");
+var Direction = require ("../controllers/Direction");
 
 module.exports = class King extends Piece {
   constructor (location, owner) {

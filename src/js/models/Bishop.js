@@ -1,19 +1,16 @@
 "use strict";
 
-var Board = require("./Board");
-var Game = require ("./Game");
+var Board = require("../controllers/Board");
+var Game = require ("../controllers/Game");
 var Piece = require ("./Piece");
 
-module.exports = class Queen extends Piece {
+module.exports = class Bishop extends Piece {
   constructor (location, owner) {
     super(location, owner);
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
-        && (
-          this.location.isDiagonalTo(location)
-          || this.location.isCardinalTo(location)
-        )
+        && this.location.isDiagonalTo(location) 
         && !Board.pathIsOccupied(this.location, location)
         && location.occupant.owner !== this.owner
       ){
@@ -21,23 +18,16 @@ module.exports = class Queen extends Piece {
       } else {
         Game.throwError.illegalMove();
       }
-    }
+    };
   }
   
   get threateningCheck() {
     let king = this.owner.otherPlayer.king;
     
-    if (
-      (
-        this.location.isDiagonalTo(king.location)
-        || this.location.isCardinalTo(king.location)
-      )
-      && !Board.pathIsOccupied(this.location, king.location) 
-    ){
+    if (this.location.isDiagonalTo(king.location) && !Board.pathIsOccupied(this.location, king.location)) {
       return true;
     } else {
       return false;
     }
   }
-
-}
+};

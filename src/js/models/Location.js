@@ -3,8 +3,8 @@
 module.exports = class Location {
   
   constructor(name, row, column, occupant) {
-    var Board = require("./Board");
-    var Direction = require("./Direction");
+    var Board = require("../controllers/Board");
+    var Direction = require("../controllers/Direction");
 
     this.name = name;
     this.row = row;
@@ -41,7 +41,7 @@ module.exports = class Location {
   }
   
   get isOccupied() {
-    var Board = require("./Board");
+    var Board = require("../controllers/Board");
     return this.occupant !== Board.dummyPiece;
   }
     

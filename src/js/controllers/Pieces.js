@@ -1,12 +1,12 @@
 "use strict";
 
-var King = require("./King");
-var Queen = require("./Queen");
-var Rook = require("./Rook");
-var Bishop = require("./Bishop");
-var Knight = require("./Knight");
-var Pawn = require("./Pawn");
-var Piece = require("./Piece");
+var King = require("../models/King");
+var Queen = require("../models/Queen");
+var Rook = require("../models/Rook");
+var Bishop = require("../models/Bishop");
+var Knight = require("../models/Knight");
+var Pawn = require("../models/Pawn");
+var Piece = require("../models/Piece");
 var Board = require("./Board");
 
 var Pieces = module.exports = {

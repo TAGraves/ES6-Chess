@@ -1,8 +1,8 @@
 "use strict";
 
-var Game = require("./Game");
-var Board = require("./Board");
-var Players = require("./Players");
+var Game = require("../controllers/Game");
+var Board = require("../controllers/Board");
+var Players = require("../controllers/Players");
 var Piece = require ("./Piece");
 
 module.exports = class Pawn extends Piece {

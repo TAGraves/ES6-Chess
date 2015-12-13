@@ -1,30 +1,7 @@
 "use strict";
 
 var Pieces = require("./Pieces");
-
-class Player {
-  constructor(id, home) {
-    this.id = id;
-    this.home = home;
-    this.pieces = [];
-    
-    this.filterPieces = function (pieceType) {
-      let pieceArray = [];
-      for (let piece of this.pieces) {
-        if (piece instanceof pieceType) pieceArray.push(piece);
-      }
-      return pieceArray;
-    };
-  }
-  
-  get king() {
-    return this.pieces[4];
-  }
-  
-  get otherPlayer() {
-    return Players.reverse(this);
-  }
-}
+var Player = require("../models/Player");
 
 var Players = module.exports = {
   none: {},
