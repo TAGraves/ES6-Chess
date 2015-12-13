@@ -1,5 +1,6 @@
 "use strict";
 
+
 module.exports = class Location {
   
   constructor(name, row, column, occupant) {
@@ -9,7 +10,7 @@ module.exports = class Location {
     this.name = name;
     this.row = row;
     this.column = column;
-    this.occupant = occupant;  
+    this._occupant = occupant;  
     
     this.offset = function (location) {
       return this.offset.vertical(location) || this.offset.horizontal(location);
@@ -44,6 +45,13 @@ module.exports = class Location {
     var Board = require("../controllers/Board");
     return this.occupant !== Board.dummyPiece;
   }
-    
   
+  set occupant (piece) {
+    this._occupant = piece;
+    piece._location = this;
+  }
+    
+  get occupant () {
+    return this._occupant;
+  }
 }

@@ -7,12 +7,7 @@ var Board = module.exports = {
   off: new Location("off", -1, -1),
   dummyPiece: new Piece({}, {}),
   setLocation: function (piece, location) {
-    piece.location.occupant = Board.dummyPiece;
     piece.location = location;
-    if (location.occupant !== Board.dummyPiece) {
-      location.occupant.location = Board.off;
-    }
-    location.occupant = piece;
     Board.updateView();
   },
   makeState: function () {
@@ -73,10 +68,10 @@ var Board = module.exports = {
     let opponent = piece.owner.otherPlayer; 
     let checked = false;
     
-    if (formerOccupant !== null) formerOccupant.location = Board.off;
+    if (formerOccupant !== null) formerOccupant._location = Board.off;
     
-    piece.location = location;
-    location.occupant = piece;
+    piece._location = location;
+    location._occupant = piece;
     
     for (let piece of opponent.pieces) {
       if (piece.location !== Board.off && piece.threateningCheck) {
@@ -85,9 +80,9 @@ var Board = module.exports = {
       }
     }
 
-    location.occupant = formerOccupant;
-    piece.location = formerLocation;
-    if (formerOccupant !== null) formerOccupant.location = location;
+    location._occupant = formerOccupant;
+    piece._location = formerLocation;
+    if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   }
 

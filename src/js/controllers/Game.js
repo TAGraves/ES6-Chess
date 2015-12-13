@@ -10,10 +10,10 @@ var Game = module.exports = {
     let opponent = piece.owner.otherPlayer; 
     let checked = false;
     
-    if (formerOccupant !== null) formerOccupant.location = Board.off;
+    if (formerOccupant !== null) formerOccupant._location = Board.off;
     
-    piece.location = location;
-    location.occupant = piece;
+    piece._location = location;
+    location._occupant = piece;
     
     for (let piece of opponent.pieces) {
       if (piece.location !== Board.off && piece.threateningCheck) {
@@ -22,9 +22,9 @@ var Game = module.exports = {
       }
     }
 
-    location.occupant = formerOccupant;
-    piece.location = formerLocation;
-    if (formerOccupant !== null) formerOccupant.location = location;
+    location._occupant = formerOccupant;
+    piece._location = formerLocation;
+    if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   },
   throwError: {
@@ -35,9 +35,12 @@ var Game = module.exports = {
   debug: function () {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
-    Players.player1.pieces[1].moveTo(Board.state[0][2]);
-    Players.player1.pieces[1].moveTo(Board.state[1][4]);
-    Players.player1.pieces[1].moveTo(Board.state[2][6]);
-    console.log(Players.player1.pieces[1].threateningCheck);
+    Players.player1.pieces[8].moveTo(Board.state[0][3]);
+    Players.player1.pieces[8].moveTo(Board.state[0][4]);
+    Players.player2.pieces[9].moveTo(Board.state[1][4]);
+    Players.player1.pieces[8].moveTo(Board.state[1][5]);
+    console.log(Board.state);
+    console.log(Players.player1.pieces);
+    console.log(Players.player2.pieces);
   }
 };

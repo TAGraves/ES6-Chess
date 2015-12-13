@@ -40,8 +40,7 @@ module.exports = class Pawn extends Piece {
           } else if (!location.isOccupied && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) { //en passant
             this.hasMoved = true;
             let oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
-            oppOccupant.location.occupant = Board.dummyPiece; //hack to make sure piece gets captured
-            location.occupant = oppOccupant; //hack to make sure piece gets captured
+            oppOccupant.capture();
             Board.setLocation(this, location);
             console.log(oppOccupant);
             moveSucceeded = true;
