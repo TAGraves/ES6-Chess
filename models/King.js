@@ -21,7 +21,7 @@ module.exports = class King extends Piece {
     }
     
     this.castle = function (rook) {
-      var direction = Board.horizontalDirection(this.location, rook.location),
+      var direction = this.location.getCardinalDirection(rook.location, "horizontal"),
           location  = Board.traverse(this.location, 2, direction);
       if (
         !rook.hasMoved 

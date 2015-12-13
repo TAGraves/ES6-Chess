@@ -19,9 +19,42 @@ var Board = module.exports = {
   })(),
   off: new Location("off", -1, -1),
   setLocation: function (piece, location) {},
-  traverse: function (location, distance, direction) {},
-  pathIsOccupied: function (location1, location2) {},
+  traverse: function (location, distance, direction) {
+    let column = location.column,
+        row = location.row;
+    switch (direction) {
+      case "north": 
+        return Board.state[column][row+distance];
+        break;
+      case "south":
+        return Board.state[column][row-distance];
+        break;
+      case "east":
+        return Board.state[column+distance][row];
+        break;
+      case "west":
+        return Board.state[column-distance][row];
+        break;
+      case "northeast": 
+        return Board.state[column+distance][row+distance];
+        break;
+      case "northwest":
+        return Board.state[column+distance][row-distance];
+        break;
+      case "southeast":
+        return Board.state[column-distance][row+distance];
+        break;
+      case "southwest":
+        return Board.state[column-distance][row+distance];
+        break;
+    }
+  },
+  pathIsOccupied: function (startLocation, endLocation) {
+    let direction = startLocation.getDirection(endLocation),
+        offset = startLocation.offset(endLocation);
+    for (let i = 1; i < offset; i++) {
+      if (Board.traverse(startLocation, i, direction).isOccupied) return true;
+    }
+    return false;
+  }
 };
-
-console.log(Board.state);
-console.log(Board.state[0][0].isOccupied);
