@@ -23,4 +23,21 @@ module.exports = class Queen extends Piece {
       }
     }
   }
+  
+  get threateningCheck() {
+    let king = this.owner.otherPlayer.king;
+    
+    if (
+      (
+        this.location.isDiagonalTo(king.location)
+        || this.location.isCardinallTo(king.location)
+      )
+      && !Board.pathisOccupied(this.location, king.location) 
+    ){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

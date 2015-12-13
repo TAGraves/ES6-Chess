@@ -22,4 +22,18 @@ module.exports = class Knight extends Piece {
       } 
     }
   }
+  
+  get threateningCheck() {
+    let king = this.owner.otherPlayer.king;
+    
+    if (
+      (this.location.offset.vertical(king.location) === 2 && this.location.offset.horizontal(location) === 1)
+      || (this.location.offset.vertical(king.location) === 1 && this.location.offset.horizontal(king.location) === 2)
+    ){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

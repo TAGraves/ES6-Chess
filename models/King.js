@@ -3,6 +3,7 @@
 var Board = require("./Board");
 var Game = require ("./Game");
 var Piece = require ("./Piece");
+var Direction = require ("./Direction");
 
 module.exports = class King extends Piece {
   constructor (location, owner) {
@@ -30,10 +31,15 @@ module.exports = class King extends Piece {
         && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
       ) {
         Board.setLocation(this, location, false);
-        Board.setLocation(rook, Board.traverse(location, 1, Board.oppositeDirection(direction)));
+        Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
       } else {
         Game.throwError.illegalMove();
       }
     }
   }
+  
+  get threateningCheck() {
+    return false;
+  }
+
 }

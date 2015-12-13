@@ -18,6 +18,16 @@ module.exports = class Bishop extends Piece {
       } else {
         Game.throwError.illegalMove();
       }
+    };
+  }
+  
+  get threateningCheck() {
+    let king = this.owner.otherPlayer.king;
+    
+    if (this.location.isDiagonalTo(king.location) && !Board.pathisOccupied(this.location, king.location)) {
+      return true;
+    } else {
+      return false;
     }
   }
 };

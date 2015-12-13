@@ -33,7 +33,7 @@ module.exports = class Pawn extends Piece {
             moveSucceeded = true;
           } 
         } else if (offset === 1) {
-          if (location.isOccupied && !location.occupant.owner === this.owner) {
+          if (location.isOccupied && !location.occupant.owner === this.owner) { //capture
             this.hasMoved = true;
             Board.setLocation(this, location);
             moveSucceded = true;
@@ -50,4 +50,21 @@ module.exports = class Pawn extends Piece {
       }
     }
   }
+  
+  get threateningCheck() {
+    let king = this.owner.otherPlayer.king;
+    
+    if (
+      (
+        this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "west"
+        || this.location.getlDirection(king.location) === (this.owner.otherPlayer.home) + "east"
+      )
+      && this.location.offset(king.location) === 1 
+    ){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

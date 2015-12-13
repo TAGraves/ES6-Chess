@@ -20,4 +20,15 @@ module.exports = class Rook extends Piece {
       }
     }
   }
+  
+  get threateningCheck() {
+    let king = this.owner.otherPlayer.king;
+    
+    if (this.location.isCardinalTo(king.location) && !Board.pathisOccupied(this.location, king.location)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

@@ -7,16 +7,28 @@ class Player {
     this.id = id;
     this.home = home;
     this.pieces = [];
+    
+    this.filterPieces = function (pieceType) {
+      let pieceArray = [];
+      for (let piece of this.pieces) {
+        if (piece instanceof pieceType) pieceArray.push(piece);
+      }
+      return pieceArray;
+    };
+  }
+  
+  get king() {
+    return this.pieces[4];
   }
   
   get otherPlayer() {
-    return Players.otherPlayer(this);
+    return Players.reverse(this);
   }
 }
 
 var Players = module.exports = {
   none: {},
-  otherPlayer: function (player) {
+  reverse: function (player) {
     return (player.id === 1) ? Players.player2 : Players.player1;
   },
   makePlayers: function () {

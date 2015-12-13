@@ -31,6 +31,7 @@ var Pieces = module.exports = {
       new Knight(Board.state[6][rowIndex], player),
       new Rook(Board.state[7][rowIndex], player)
     ];
+    
     for (let i = 0; i < 8; i++) {
       pieceArray.push( new Pawn(Board.state[i][pawnIndex], player) )
     }
