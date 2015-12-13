@@ -1,7 +1,6 @@
 "use strict";
 
 var Board = require("./Board");
-var Players = require("./Players");
 var Game = require ("./Game");
 var Piece = require ("./Piece");
 

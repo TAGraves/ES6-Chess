@@ -1,5 +1,4 @@
 "use strict";
-var Players = require("./Players");
 var Location = require("./Location");
 
 var Board = module.exports = {
