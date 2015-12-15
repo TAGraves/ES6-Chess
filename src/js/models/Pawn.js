@@ -48,26 +48,16 @@ module.exports = class Pawn extends Piece {
         }
       }
       
-      if (!moveSucceeded) {
-        Game.throwError.illegalMove();
-      }
+      if (!moveSucceeded) Game.throwError.illegalMove();
     }
   }
   
   get threateningCheck() {
     let king = this.owner.otherPlayer.king;
     
-    if (
-      (
-        this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "west"
-        || this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "east"
-      )
-      && this.location.offset(king.location) === 1 
-    ){
-      return true;
-    } else {
-      return false;
-    }
+    return ((this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "west"
+         || this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "east")
+         && this.location.offset(king.location) === 1);
   }
 
 }

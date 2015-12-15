@@ -28,14 +28,12 @@ var Game = module.exports = {
     return checked;
   },
   throwError: {
-    illegalMove: function () {
-      console.log('illegal move!');
-    }
+    illegalMove: () => console.log('illegal move!')
   },
   debug: function () {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
-    Players.player1.pieces[8].moveTo(Board.state[0][3]);
+    Players.player1.pieces[8].moveTo(Board.state[0][6]);
     Players.player1.pieces[8].moveTo(Board.state[0][4]);
     Players.player2.pieces[9].moveTo(Board.state[1][4]);
     Players.player1.pieces[8].moveTo(Board.state[1][5]);
