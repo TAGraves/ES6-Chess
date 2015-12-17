@@ -16,12 +16,7 @@ var Board = module.exports = {
   off: new Location("off", -1, -1),
   dummyPiece: new Piece({}, {}),
   setLocation: function setLocation(piece, location) {
-    piece.location.occupant = Board.dummyPiece;
     piece.location = location;
-    if (location.occupant !== Board.dummyPiece) {
-      location.occupant.location = Board.off;
-    }
-    location.occupant = piece;
     Board.updateView();
   },
   makeState: function makeState() {
@@ -82,10 +77,10 @@ var Board = module.exports = {
     var opponent = piece.owner.otherPlayer;
     var checked = false;
 
-    if (formerOccupant !== null) formerOccupant.location = Board.off;
+    if (formerOccupant !== null) formerOccupant._location = Board.off;
 
-    piece.location = location;
-    location.occupant = piece;
+    piece._location = location;
+    location._occupant = piece;
 
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -115,9 +110,9 @@ var Board = module.exports = {
       }
     }
 
-    location.occupant = formerOccupant;
-    piece.location = formerLocation;
-    if (formerOccupant !== null) formerOccupant.location = location;
+    location._occupant = formerOccupant;
+    piece._location = formerLocation;
+    if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   }
 
@@ -200,11 +195,10 @@ var Game = module.exports = {
     var formerLocation = piece.location;
     var opponent = piece.owner.otherPlayer;
     var checked = false;
+    if (formerOccupant !== Board.dummyPiece) formerOccupant._location = Board.off;
 
-    if (formerOccupant !== null) formerOccupant.location = Board.off;
-
-    piece.location = location;
-    location.occupant = piece;
+    piece._location = location;
+    location._occupant = piece;
 
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -234,23 +228,28 @@ var Game = module.exports = {
       }
     }
 
-    location.occupant = formerOccupant;
-    piece.location = formerLocation;
-    if (formerOccupant !== null) formerOccupant.location = location;
+    location._occupant = formerOccupant;
+    piece._location = formerLocation;
+    if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   },
   throwError: {
     illegalMove: function illegalMove() {
-      console.log('illegal move!');
+      return console.log('illegal move!');
+    },
+    illegalCastle: function illegalCastle() {
+      return console.log('illegal castle!');
     }
   },
   debug: function debug() {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
+    Players.player1.pieces[11].moveTo(Board.state[3][3]);
+    Players.player1.pieces[2].moveTo(Board.state[4][2]);
+    Players.player1.pieces[3].moveTo(Board.state[3][1]);
     Players.player1.pieces[1].moveTo(Board.state[0][2]);
-    Players.player1.pieces[1].moveTo(Board.state[1][4]);
-    Players.player1.pieces[1].moveTo(Board.state[2][6]);
-    console.log(Players.player1.pieces[1].threateningCheck);
+    Players.player1.pieces[4].moveTo(Board.state[2][0]);
+    console.log(Board.state[3][0]);
   }
 };
 
@@ -400,20 +399,27 @@ module.exports = (function (_Piece) {
     _this.moveTo = function (location) {
       if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && this.location.offset(location) === 1) {
         Board.setLocation(this, location);
+      } else if (this.location.offset(location) === 2) {
+        this.castle(location);
       } else {
         Game.throwError.illegalMove();
       }
     };
 
-    _this.castle = function (rook) {
-      var direction = this.location.getCardinalDirection(rook.location, "horizontal"),
-          location = Board.traverse(this.location, 2, direction);
-      if (!rook.hasMoved && !this.hasMoved && !Board.pathIsOccupied(this.location, rook.location) && !Game.moveWillPutOwnerInCheck(this, location) && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
-      ) {
-          Board.setLocation(this, location, false);
-          Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
-        } else {
-        Game.throwError.illegalMove();
+    _this.castle = function (location) {
+      if ((location.row === 0 || location.row === 7) && (location.column === 2 || location.column === 6)) {
+        var Rook = require("./Rook");
+        var direction = this.location.getDirection(location);
+        var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
+        if (rook instanceof Rook && !rook.hasMoved && !this.hasMoved && !Board.pathIsOccupied(this.location, rook.location) && !Game.moveWillPutOwnerInCheck(this, location) && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
+        ) {
+            Board.setLocation(this, location, false);
+            Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
+          } else {
+          Game.throwError.illegalCastle();
+        }
+      } else {
+        Game.throwError.illegalCastle();
       }
     };
     return _this;
@@ -429,7 +435,7 @@ module.exports = (function (_Piece) {
   return King;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Direction":3,"../controllers/Game":4,"./Piece":13}],10:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Direction":3,"../controllers/Game":4,"./Piece":13,"./Rook":16}],10:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -496,10 +502,10 @@ module.exports = (function () {
     this.name = name;
     this.row = row;
     this.column = column;
-    this.occupant = occupant;
+    this._occupant = occupant;
 
     this.offset = function (location) {
-      return this.offset.vertical(location) || this.offset.horizontal(location);
+      return _this.offset.vertical(location) || _this.offset.horizontal(location);
     };
 
     this.offset.vertical = function (location) {
@@ -511,19 +517,19 @@ module.exports = (function () {
     };
 
     this.isDiagonalTo = function (location) {
-      return this.offset.vertical(location) === this.offset.horizontal(location);
+      return _this.offset.vertical(location) === _this.offset.horizontal(location);
     };
 
     this.isCardinalTo = function (location) {
-      return this.offset.vertical(location) === 0 || this.offset.horizontal(location) === 0;
+      return _this.offset.vertical(location) === 0 || _this.offset.horizontal(location) === 0;
     };
 
     this.getDirection = function (location) {
-      return Direction.getDirection(this, location);
+      return Direction.getDirection(_this, location);
     };
 
     this.getCardinalDirection = function (location, orientation) {
-      return Direction.getCardinalDirection(this, location, orientation);
+      return Direction.getCardinalDirection(_this, location, orientation);
     };
   }
 
@@ -532,6 +538,15 @@ module.exports = (function () {
     get: function get() {
       var Board = require("../controllers/Board");
       return this.occupant !== Board.dummyPiece;
+    }
+  }, {
+    key: "occupant",
+    set: function set(piece) {
+      this._occupant = piece;
+      piece._location = this;
+    },
+    get: function get() {
+      return this._occupant;
     }
   }]);
 
@@ -589,8 +604,7 @@ module.exports = (function (_Piece) {
             //en passant
             this.hasMoved = true;
             var oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
-            oppOccupant.location.occupant = Board.dummyPiece; //hack to make sure piece gets captured
-            location.occupant = oppOccupant; //hack to make sure piece gets captured
+            oppOccupant.capture();
             Board.setLocation(this, location);
             console.log(oppOccupant);
             moveSucceeded = true;
@@ -598,9 +612,7 @@ module.exports = (function (_Piece) {
         }
       }
 
-      if (!moveSucceeded) {
-        Game.throwError.illegalMove();
-      }
+      if (!moveSucceeded) Game.throwError.illegalMove();
     };
     return _this;
   }
@@ -610,11 +622,7 @@ module.exports = (function (_Piece) {
     get: function get() {
       var king = this.owner.otherPlayer.king;
 
-      if ((this.location.getDirection(king.location) === this.owner.otherPlayer.home + "west" || this.location.getDirection(king.location) === this.owner.otherPlayer.home + "east") && this.location.offset(king.location) === 1) {
-        return true;
-      } else {
-        return false;
-      }
+      return (this.location.getDirection(king.location) === this.owner.otherPlayer.home + "west" || this.location.getDirection(king.location) === this.owner.otherPlayer.home + "east") && this.location.offset(king.location) === 1;
     }
   }]);
 
@@ -624,18 +632,45 @@ module.exports = (function (_Piece) {
 },{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Players":6,"./Piece":13}],13:[function(require,module,exports){
 "use strict";
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Board = require("../controllers/Board");
 
-module.exports = function Piece(location, owner) {
-  _classCallCheck(this, Piece);
+module.exports = (function () {
+  function Piece(location, owner) {
+    _classCallCheck(this, Piece);
 
-  this.location = location;
-  this.owner = owner;
-  this.hasMoved = false;
-  location.occupant = this;
-};
+    this._location = location;
+    this.owner = owner;
+    this.hasMoved = false;
+    this.isCaptured = false;
+    location.occupant = this;
+
+    this.capture = function () {
+      var Board = require("../controllers/Board");
+      this._location = Board.off;
+      this.isCaptured = true;
+    };
+  }
+
+  _createClass(Piece, [{
+    key: "location",
+    set: function set(location) {
+      var Board = require("../controllers/Board");
+      this._location._occupant = Board.dummyPiece;
+      if (location.occupant !== Board.dummyPiece) location.occupant.capture();
+      this._location = location;
+      location._occupant = this;
+    },
+    get: function get() {
+      return this._location;
+    }
+  }]);
+
+  return Piece;
+})();
 
 },{"../controllers/Board":2}],14:[function(require,module,exports){
 "use strict";
@@ -737,11 +772,7 @@ module.exports = (function (_Piece) {
     get: function get() {
       var king = this.owner.otherPlayer.king;
 
-      if ((this.location.isDiagonalTo(king.location) || this.location.isCardinalTo(king.location)) && !Board.pathIsOccupied(this.location, king.location)) {
-        return true;
-      } else {
-        return false;
-      }
+      return (this.location.isDiagonalTo(king.location) || this.location.isCardinalTo(king.location)) && !Board.pathIsOccupied(this.location, king.location);
     }
   }]);
 
@@ -784,13 +815,8 @@ module.exports = (function (_Piece) {
   _createClass(Rook, [{
     key: "threateningCheck",
     get: function get() {
-
       var king = this.owner.otherPlayer.king;
-      if (this.location.isCardinalTo(king.location) && !Board.pathIsOccupied(this.location, king.location)) {
-        return true;
-      } else {
-        return false;
-      }
+      return this.location.isCardinalTo(king.location) && !Board.pathIsOccupied(this.location, king.location);
     }
   }]);
 
