@@ -18,6 +18,7 @@ module.exports = class Piece {
   }
   
   set location (location) {
+    let Board = require("../controllers/Board");
     this._location._occupant = Board.dummyPiece;
     if (location.occupant !== Board.dummyPiece) location.occupant.capture();
     this._location = location;

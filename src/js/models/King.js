@@ -15,25 +15,36 @@ module.exports = class King extends Piece {
         && this.location.offset(location) === 1
       ){
         Board.setLocation(this, location);
+      } else if (this.location.offset(location) === 2) {
+        this.castle(location);
       } else {
         Game.throwError.illegalMove();
       } 
     }
     
-    this.castle = function (rook) {
-      var direction = this.location.getCardinalDirection(rook.location, "horizontal"),
-          location  = Board.traverse(this.location, 2, direction);
+    this.castle = function (location) {
       if (
-        !rook.hasMoved 
-        && !this.hasMoved
-        && !Board.pathIsOccupied(this.location, rook.location)
-        && !Game.moveWillPutOwnerInCheck(this, location)
-        && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
+        (location.row === 0 || location.row === 7)
+        && (location.column === 2 || location.column === 6)
       ) {
-        Board.setLocation(this, location, false);
-        Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
+        let Rook = require("./Rook")
+        let direction = this.location.getDirection(location);
+        let rook = (direction === "west") ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
+        if (
+          rook instanceof Rook
+          && !rook.hasMoved 
+          && !this.hasMoved
+          && !Board.pathIsOccupied(this.location, rook.location)
+          && !Game.moveWillPutOwnerInCheck(this, location)
+          && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
+        ) {
+          Board.setLocation(this, location, false);
+          Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
+        } else {
+          Game.throwError.illegalCastle();
+        }
       } else {
-        Game.throwError.illegalMove();
+        Game.throwError.illegalCastle();
       }
     }
   }

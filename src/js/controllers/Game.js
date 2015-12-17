@@ -9,8 +9,7 @@ var Game = module.exports = {
     let formerLocation = piece.location;
     let opponent = piece.owner.otherPlayer; 
     let checked = false;
-    
-    if (formerOccupant !== null) formerOccupant._location = Board.off;
+    if (formerOccupant !== Board.dummyPiece) formerOccupant._location = Board.off;
     
     piece._location = location;
     location._occupant = piece;
@@ -28,17 +27,17 @@ var Game = module.exports = {
     return checked;
   },
   throwError: {
-    illegalMove: () => console.log('illegal move!')
+    illegalMove: () => console.log('illegal move!'),
+    illegalCastle: () => console.log('illegal castle!')
   },
   debug: function () {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
-    Players.player1.pieces[8].moveTo(Board.state[0][6]);
-    Players.player1.pieces[8].moveTo(Board.state[0][4]);
-    Players.player2.pieces[9].moveTo(Board.state[1][4]);
-    Players.player1.pieces[8].moveTo(Board.state[1][5]);
-    console.log(Board.state);
-    console.log(Players.player1.pieces);
-    console.log(Players.player2.pieces);
+    Players.player1.pieces[11].moveTo(Board.state[3][3]);
+    Players.player1.pieces[2].moveTo(Board.state[4][2]);
+    Players.player1.pieces[3].moveTo(Board.state[3][1]);
+    Players.player1.pieces[1].moveTo(Board.state[0][2]);
+    Players.player1.pieces[4].moveTo(Board.state[2][0]);
+    console.log(Board.state[3][0]);
   }
 };
