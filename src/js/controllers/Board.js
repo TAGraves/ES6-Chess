@@ -23,6 +23,10 @@ var Board = module.exports = {
     }
     Board.state = columns;
   },
+  makeView: function () {
+    let View = require("./View");
+    View.makeView();
+  },
   traverse: function (location, distance, direction) {
     let column = location.column,
         row = location.row;
