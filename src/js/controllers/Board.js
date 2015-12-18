@@ -7,9 +7,12 @@ var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
   dummyPiece: new Piece({}, {}, true),
+  capture: function (piece) {
+    View.removePiece(piece.domElement);
+  },
   setLocation: function (piece, location) {
     piece.location = location;
-    Board.updateView(location);
+    Board.updateView(location, piece);
   },
   makeState: function () {
     let columns = [];
@@ -65,7 +68,7 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: (location) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location),
+  updateView: (location, piece) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location, piece.domElement),
   moveWillPutOwnerInCheck: function (piece, location) {
     let formerOccupant = location.occupant;
     let formerLocation = piece.location;

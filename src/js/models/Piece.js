@@ -20,6 +20,7 @@ module.exports = class Piece {
       let Board = require("../controllers/Board");
       this._location = Board.off;
       this.isCaptured = true;
+      Board.capture(this);
     };
   }
   

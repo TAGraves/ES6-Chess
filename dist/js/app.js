@@ -16,9 +16,12 @@ var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
   dummyPiece: new Piece({}, {}, true),
+  capture: function capture(piece) {
+    View.removePiece(piece.domElement);
+  },
   setLocation: function setLocation(piece, location) {
     piece.location = location;
-    Board.updateView(location);
+    Board.updateView(location, piece);
   },
   makeState: function makeState() {
     var columns = [];
@@ -74,8 +77,8 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: function updateView(location) {
-    return typeof location === "undefined" ? View.updateView() : View.updateViewAt(location);
+  updateView: function updateView(location, piece) {
+    return typeof location === "undefined" ? View.updateView() : View.updateViewAt(location, piece.domElement);
   },
   moveWillPutOwnerInCheck: function moveWillPutOwnerInCheck(piece, location) {
     var formerOccupant = location.occupant;
@@ -251,6 +254,9 @@ var Game = module.exports = {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
     Players.player1.pieces[11].moveTo(Board.state[3][3]);
+    Players.player1.pieces[11].moveTo(Board.state[3][4]);
+    Players.player1.pieces[11].moveTo(Board.state[3][5]);
+    Players.player1.pieces[11].moveTo(Board.state[4][6]);
     Players.player1.pieces[2].moveTo(Board.state[4][2]);
     Players.player1.pieces[3].moveTo(Board.state[3][1]);
     Players.player1.pieces[1].moveTo(Board.state[0][2]);
@@ -358,13 +364,16 @@ var View = module.exports = {
     var square = document.getElementById('square-' + location.row + '-' + location.column);
     square.appendChild(piece);
   },
+  removePiece: function removePiece(piece) {
+    piece.parentNode.removeChild(piece);
+  },
   updateView: function updateView() {
     var Board = require('./Board');
   },
-  updateViewAt: function updateViewAt(location) {
+  updateViewAt: function updateViewAt(location, piece) {
     var Board = require('./Board');
-    var square = document.getElementById('square-' + location.column + '-' + location.row);
-    //if (location.occupant)
+    var square = document.getElementById('square-' + location.row + '-' + location.column);
+    square.appendChild(piece);
   }
 };
 
@@ -707,6 +716,7 @@ module.exports = (function () {
       var Board = require("../controllers/Board");
       this._location = Board.off;
       this.isCaptured = true;
+      Board.capture(this);
     };
   }
 

@@ -34,6 +34,9 @@ var Game = module.exports = {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
     Players.player1.pieces[11].moveTo(Board.state[3][3]);
+    Players.player1.pieces[11].moveTo(Board.state[3][4]);
+    Players.player1.pieces[11].moveTo(Board.state[3][5]);
+    Players.player1.pieces[11].moveTo(Board.state[4][6]);
     Players.player1.pieces[2].moveTo(Board.state[4][2]);
     Players.player1.pieces[3].moveTo(Board.state[3][1]);
     Players.player1.pieces[1].moveTo(Board.state[0][2]);

@@ -25,13 +25,16 @@ var View = module.exports = {
     let square = document.getElementById('square-' + location.row + '-' + location.column);
     square.appendChild(piece);
   },
+  removePiece: function (piece) {
+    piece.parentNode.removeChild(piece);
+  },
   updateView: function () {
     var Board = require('./Board');
     
   },
-  updateViewAt: function (location) {
+  updateViewAt: function (location, piece) {
     let Board = require('./Board');
-    let square = document.getElementById('square-' + location.column + '-' + location.row);
-    //if (location.occupant)
+    let square = document.getElementById('square-' + location.row + '-' + location.column);
+    square.appendChild(piece);
   }
 }
