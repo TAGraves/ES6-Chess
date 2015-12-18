@@ -10,14 +10,15 @@ Setup();
 
 var Location = require("../models/Location");
 var Piece = require("../models/Piece");
+var View = require("./View");
 
 var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
-  dummyPiece: new Piece({}, {}),
+  dummyPiece: new Piece({}, {}, true),
   setLocation: function setLocation(piece, location) {
     piece.location = location;
-    Board.updateView();
+    Board.updateView(location);
   },
   makeState: function makeState() {
     var columns = [];
@@ -31,6 +32,9 @@ var Board = module.exports = {
       columns.push(row);
     }
     Board.state = columns;
+  },
+  makeView: function makeView() {
+    View.makeView();
   },
   traverse: function traverse(location, distance, direction) {
     var column = location.column,
@@ -70,7 +74,9 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: function updateView() {},
+  updateView: function updateView(location) {
+    return typeof location === "undefined" ? View.updateView() : View.updateViewAt(location);
+  },
   moveWillPutOwnerInCheck: function moveWillPutOwnerInCheck(piece, location) {
     var formerOccupant = location.occupant;
     var formerLocation = piece.location;
@@ -118,7 +124,7 @@ var Board = module.exports = {
 
 };
 
-},{"../models/Location":11,"../models/Piece":13}],3:[function(require,module,exports){
+},{"../models/Location":12,"../models/Piece":14,"./View":8}],3:[function(require,module,exports){
 "use strict";
 
 var Board = require("./Board");
@@ -287,7 +293,7 @@ var Pieces = module.exports = {
   }
 };
 
-},{"../models/Bishop":8,"../models/King":9,"../models/Knight":10,"../models/Pawn":12,"../models/Piece":13,"../models/Queen":15,"../models/Rook":16,"./Board":2}],6:[function(require,module,exports){
+},{"../models/Bishop":9,"../models/King":10,"../models/Knight":11,"../models/Pawn":13,"../models/Piece":14,"../models/Queen":16,"../models/Rook":17,"./Board":2}],6:[function(require,module,exports){
 "use strict";
 
 var Pieces = require("./Pieces");
@@ -310,7 +316,7 @@ var Players = module.exports = {
   }
 };
 
-},{"../models/Player":14,"./Pieces":5}],7:[function(require,module,exports){
+},{"../models/Player":15,"./Pieces":5}],7:[function(require,module,exports){
 "use strict";
 
 var Board = require("./Board");
@@ -318,12 +324,51 @@ var Players = require("./Players");
 var Game = require("./Game");
 
 var Setup = module.exports = function () {
+  Board.makeView();
   Board.makeState();
   Players.makePlayers();
   Game.debug();
 };
 
 },{"./Board":2,"./Game":4,"./Players":6}],8:[function(require,module,exports){
+"use strict";
+
+var View = module.exports = {
+  makeView: function makeView() {
+    var pane = document.getElementById('pane');
+    var board = document.createElement('div');
+    board.className = 'board';
+    for (var i = 7; i > -1; i--) {
+      var row = document.createElement('div');
+      var evenOrOdd = i % 2 ? 'even' : 'odd';
+      row.className = 'row ' + evenOrOdd;
+      row.id = 'row-' + i.toString();
+      for (var j = 0; j < 8; j++) {
+        var square = document.createElement('div');
+        var _evenOrOdd = j % 2 ? 'even' : 'odd';
+        square.className = 'square ' + _evenOrOdd;
+        square.id = 'square-' + i.toString() + '-' + j.toString();
+        row.appendChild(square);
+      }
+      board.appendChild(row);
+    }
+    pane.appendChild(board);
+  },
+  putPieceOnBoard: function putPieceOnBoard(piece, location) {
+    var square = document.getElementById('square-' + location.row + '-' + location.column);
+    square.appendChild(piece);
+  },
+  updateView: function updateView() {
+    var Board = require('./Board');
+  },
+  updateViewAt: function updateViewAt(location) {
+    var Board = require('./Board');
+    var square = document.getElementById('square-' + location.column + '-' + location.row);
+    //if (location.occupant)
+  }
+};
+
+},{"./Board":2}],9:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -344,8 +389,9 @@ module.exports = (function (_Piece) {
   function Bishop(location, owner) {
     _classCallCheck(this, Bishop);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Bishop).call(this, location, owner));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Bishop).call(this, location, owner, false));
 
+    _this.domElement.className = "piece bishop player" + _this.owner.id;
     _this.moveTo = function (location) {
       if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isDiagonalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) {
         Board.setLocation(this, location);
@@ -372,7 +418,7 @@ module.exports = (function (_Piece) {
   return Bishop;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":13}],9:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}],10:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -394,8 +440,9 @@ module.exports = (function (_Piece) {
   function King(location, owner) {
     _classCallCheck(this, King);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(King).call(this, location, owner));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(King).call(this, location, owner, false));
 
+    _this.domElement.className = "piece king player" + _this.owner.id;
     _this.moveTo = function (location) {
       if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && this.location.offset(location) === 1) {
         Board.setLocation(this, location);
@@ -435,7 +482,7 @@ module.exports = (function (_Piece) {
   return King;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Direction":3,"../controllers/Game":4,"./Piece":13,"./Rook":16}],10:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Direction":3,"../controllers/Game":4,"./Piece":14,"./Rook":17}],11:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -456,8 +503,9 @@ module.exports = (function (_Piece) {
   function Knight(location, owner) {
     _classCallCheck(this, Knight);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Knight).call(this, location, owner));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Knight).call(this, location, owner, false));
 
+    _this.domElement.className = "piece knight player" + _this.owner.id;
     _this.moveTo = function (location) {
       if (!Board.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)) {
         Board.setLocation(this, location);
@@ -483,7 +531,7 @@ module.exports = (function (_Piece) {
   return Knight;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":13}],11:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}],12:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -553,7 +601,7 @@ module.exports = (function () {
   return Location;
 })();
 
-},{"../controllers/Board":2,"../controllers/Direction":3}],12:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Direction":3}],13:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -575,8 +623,9 @@ module.exports = (function (_Piece) {
   function Pawn(location, owner) {
     _classCallCheck(this, Pawn);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Pawn).call(this, location, owner));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Pawn).call(this, location, owner, false));
 
+    _this.domElement.className = "piece pawn player" + _this.owner.id;
     _this.moveTo = function (location) {
       var offset = this.location.offset(location);
       var moveSucceeded = false;
@@ -629,7 +678,7 @@ module.exports = (function (_Piece) {
   return Pawn;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Players":6,"./Piece":13}],13:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Players":6,"./Piece":14}],14:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -637,9 +686,10 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Board = require("../controllers/Board");
+var View = require("../controllers/View");
 
 module.exports = (function () {
-  function Piece(location, owner) {
+  function Piece(location, owner, isDummyPiece) {
     _classCallCheck(this, Piece);
 
     this._location = location;
@@ -647,6 +697,11 @@ module.exports = (function () {
     this.hasMoved = false;
     this.isCaptured = false;
     location.occupant = this;
+    if (!isDummyPiece) {
+      var idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
+      this.domElement = document.createElement('div');
+      View.putPieceOnBoard(this.domElement, location);
+    }
 
     this.capture = function () {
       var Board = require("../controllers/Board");
@@ -672,7 +727,7 @@ module.exports = (function () {
   return Piece;
 })();
 
-},{"../controllers/Board":2}],14:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/View":8}],15:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -734,7 +789,7 @@ module.exports = (function () {
   return Player;
 })();
 
-},{"../controllers/Players":6}],15:[function(require,module,exports){
+},{"../controllers/Players":6}],16:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -755,8 +810,9 @@ module.exports = (function (_Piece) {
   function Queen(location, owner) {
     _classCallCheck(this, Queen);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Queen).call(this, location, owner));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Queen).call(this, location, owner, false));
 
+    _this.domElement.className = "piece queen player" + _this.owner.id;
     _this.moveTo = function (location) {
       if (!Game.moveWillPutOwnerInCheck(this, location) && (this.location.isDiagonalTo(location) || this.location.isCardinalTo(location)) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) {
         Board.setLocation(this, location);
@@ -779,7 +835,7 @@ module.exports = (function (_Piece) {
   return Queen;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":13}],16:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}],17:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -800,8 +856,9 @@ module.exports = (function (_Piece) {
   function Rook(location, owner) {
     _classCallCheck(this, Rook);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Rook).call(this, location, owner));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Rook).call(this, location, owner, false));
 
+    _this.domElement.className = "piece rook player" + _this.owner.id;
     _this.moveTo = function (location) {
       if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isCardinalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) {
         Board.setLocation(this, location);
@@ -823,4 +880,4 @@ module.exports = (function (_Piece) {
   return Rook;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":13}]},{},[1]);
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}]},{},[1]);

@@ -1,8 +1,37 @@
 "use strict";
 
-var View = modules.exports = {
-  makeView(): function () {
-    //get div
-    //run loop to make chess squares
+var View = module.exports = {
+  makeView: function () {
+    let pane = document.getElementById('pane');
+    let board = document.createElement('div');
+    board.className = 'board';
+    for (let i = 7; i > -1; i--) {
+        let row = document.createElement('div');
+        let evenOrOdd = (i%2) ? 'even' : 'odd';
+        row.className = 'row ' + evenOrOdd;
+        row.id = 'row-' + i.toString();
+        for (let j = 0; j < 8; j++) {
+          let square = document.createElement('div');
+          let evenOrOdd = (j%2) ? 'even' : 'odd';
+          square.className = 'square ' + evenOrOdd;
+          square.id = 'square-' + i.toString() + '-' + j.toString();
+          row.appendChild(square);
+        }
+        board.appendChild(row);
+    } 
+    pane.appendChild(board);
+  },
+  putPieceOnBoard: function (piece, location) {
+    let square = document.getElementById('square-' + location.row + '-' + location.column);
+    square.appendChild(piece);
+  },
+  updateView: function () {
+    var Board = require('./Board');
+    
+  },
+  updateViewAt: function (location) {
+    let Board = require('./Board');
+    let square = document.getElementById('square-' + location.column + '-' + location.row);
+    //if (location.occupant)
   }
 }

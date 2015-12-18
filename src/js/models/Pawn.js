@@ -7,7 +7,8 @@ var Piece = require ("./Piece");
 
 module.exports = class Pawn extends Piece {
   constructor (location, owner) {
-    super(location, owner);
+    super(location, owner, false);
+    this.domElement.className = "piece pawn player" + this.owner.id;
     this.moveTo = function (location) {
       var offset = this.location.offset(location);
       var moveSucceeded = false;

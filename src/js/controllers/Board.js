@@ -1,14 +1,15 @@
 "use strict";
 var Location = require("../models/Location");
 var Piece = require("../models/Piece");
+var View = require("./View");
 
 var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
-  dummyPiece: new Piece({}, {}),
+  dummyPiece: new Piece({}, {}, true),
   setLocation: function (piece, location) {
     piece.location = location;
-    Board.updateView();
+    Board.updateView(location);
   },
   makeState: function () {
     let columns = [];
@@ -24,7 +25,6 @@ var Board = module.exports = {
     Board.state = columns;
   },
   makeView: function () {
-    let View = require("./View");
     View.makeView();
   },
   traverse: function (location, distance, direction) {
@@ -65,7 +65,7 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: function () {},
+  updateView: (location) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location),
   moveWillPutOwnerInCheck: function (piece, location) {
     let formerOccupant = location.occupant;
     let formerLocation = piece.location;

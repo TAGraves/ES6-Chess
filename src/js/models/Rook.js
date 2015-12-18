@@ -6,7 +6,8 @@ var Piece = require ("./Piece");
 
 module.exports = class Rook extends Piece {
   constructor (location, owner) {
-    super(location, owner);
+    super(location, owner, false);
+    this.domElement.className = "piece rook player" + this.owner.id;
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)

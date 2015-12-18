@@ -1,14 +1,20 @@
 "use strict";
 
 var Board = require("../controllers/Board");
+var View = require("../controllers/View");
 
 module.exports = class Piece {
-  constructor(location, owner) {
+  constructor(location, owner, isDummyPiece) {
     this._location = location;
     this.owner = owner;
     this.hasMoved = false;
     this.isCaptured = false;
     location.occupant = this;
+    if(!isDummyPiece) {
+      let idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
+      this.domElement = document.createElement('div');
+      View.putPieceOnBoard(this.domElement, location);
+    }
     
     this.capture = function () {
       let Board = require("../controllers/Board");

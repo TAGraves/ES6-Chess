@@ -7,7 +7,8 @@ var Direction = require ("../controllers/Direction");
 
 module.exports = class King extends Piece {
   constructor (location, owner) {
-    super(location, owner);
+    super(location, owner, false);
+    this.domElement.className = "piece king player" + this.owner.id;    
     this.moveTo = function (location) {
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
