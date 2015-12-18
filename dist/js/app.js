@@ -330,8 +330,8 @@ var Players = require("./Players");
 var Game = require("./Game");
 
 var Setup = module.exports = function () {
-  Board.makeView();
   Board.makeState();
+  Board.makeView();
   Players.makePlayers();
   Game.debug();
 };
@@ -341,6 +341,7 @@ var Setup = module.exports = function () {
 
 var View = module.exports = {
   makeView: function makeView() {
+    var Board = require('./Board');
     var pane = document.getElementById('pane');
     var board = document.createElement('div');
     board.className = 'board';
@@ -354,6 +355,7 @@ var View = module.exports = {
         var _evenOrOdd = j % 2 ? 'even' : 'odd';
         square.className = 'square ' + _evenOrOdd;
         square.id = 'square-' + i.toString() + '-' + j.toString();
+        Board.state[j][i].domElement = square;
         row.appendChild(square);
       }
       board.appendChild(row);
@@ -361,7 +363,7 @@ var View = module.exports = {
     pane.appendChild(board);
   },
   putPieceOnBoard: function putPieceOnBoard(piece, location) {
-    var square = document.getElementById('square-' + location.row + '-' + location.column);
+    var square = location.domElement;
     square.appendChild(piece);
   },
   removePiece: function removePiece(piece) {
@@ -372,7 +374,7 @@ var View = module.exports = {
   },
   updateViewAt: function updateViewAt(location, piece) {
     var Board = require('./Board');
-    var square = document.getElementById('square-' + location.row + '-' + location.column);
+    var square = location.domElement;
     square.appendChild(piece);
   }
 };

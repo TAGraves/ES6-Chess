@@ -2,6 +2,7 @@
 
 var View = module.exports = {
   makeView: function () {
+    let Board = require('./Board');
     let pane = document.getElementById('pane');
     let board = document.createElement('div');
     board.className = 'board';
@@ -15,6 +16,7 @@ var View = module.exports = {
           let evenOrOdd = (j%2) ? 'even' : 'odd';
           square.className = 'square ' + evenOrOdd;
           square.id = 'square-' + i.toString() + '-' + j.toString();
+          Board.state[j][i].domElement = square;
           row.appendChild(square);
         }
         board.appendChild(row);
@@ -22,7 +24,7 @@ var View = module.exports = {
     pane.appendChild(board);
   },
   putPieceOnBoard: function (piece, location) {
-    let square = document.getElementById('square-' + location.row + '-' + location.column);
+    let square = location.domElement;
     square.appendChild(piece);
   },
   removePiece: function (piece) {
@@ -34,7 +36,7 @@ var View = module.exports = {
   },
   updateViewAt: function (location, piece) {
     let Board = require('./Board');
-    let square = document.getElementById('square-' + location.row + '-' + location.column);
+    let square = location.domElement;
     square.appendChild(piece);
   }
 }

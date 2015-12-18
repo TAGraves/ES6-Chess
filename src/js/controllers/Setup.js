@@ -5,8 +5,8 @@ var Players = require("./Players");
 var Game = require("./Game");
 
 var Setup = module.exports = function () {
-  Board.makeView();
   Board.makeState();
+  Board.makeView();
   Players.makePlayers();
   Game.debug();
 };
