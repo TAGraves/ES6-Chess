@@ -22,6 +22,7 @@ module.exports = class Piece {
         this.hasMoved = true;
         return Board.setLocation(this, location);
       } else {
+        let Game = require("../controllers/Game");
         Game.throwError.illegalMove();
         return false;
       } 

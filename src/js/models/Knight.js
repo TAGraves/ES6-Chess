@@ -13,7 +13,7 @@ module.exports = class Knight extends Piece {
     this.checkLocation = function (location) {
       let moveSucceeded = false;
       if (
-        !Board.moveWillPutOwnerInCheck(this, location)
+        !Game.moveWillPutOwnerInCheck(this, location)
         && location.occupant.owner !== this.owner
         && (
           (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1)

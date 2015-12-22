@@ -12,7 +12,8 @@ var Game = module.exports = {
     if (formerOccupant !== Board.dummyPiece) formerOccupant._location = Board.off;
     
     piece._location = location;
-    location._occupant = piece;
+    location._occupant = piece;    
+    formerLocation._occupant = Board.dummyPiece;
     
     for (let piece of opponent.pieces) {
       if (piece.location !== Board.off && piece.threateningCheck) {
@@ -23,6 +24,8 @@ var Game = module.exports = {
 
     location._occupant = formerOccupant;
     piece._location = formerLocation;
+    formerLocation._occupant = piece;
+
     if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   },

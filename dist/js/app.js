@@ -80,50 +80,6 @@ var Board = module.exports = {
   },
   updateView: function updateView(location, piece) {
     return typeof location === "undefined" ? View.updateView() : View.updateViewAt(location, piece);
-  },
-  moveWillPutOwnerInCheck: function moveWillPutOwnerInCheck(piece, location) {
-    var formerOccupant = location.occupant;
-    var formerLocation = piece.location;
-    var opponent = piece.owner.otherPlayer;
-    var checked = false;
-
-    if (formerOccupant !== null) formerOccupant._location = Board.off;
-
-    piece._location = location;
-    location._occupant = piece;
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = opponent.pieces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var _piece = _step.value;
-
-        if (_piece.location !== Board.off && _piece.threateningCheck) {
-          checked = true;
-          break;
-        }
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
-    location._occupant = formerOccupant;
-    piece._location = formerLocation;
-    if (formerOccupant !== null) formerOccupant._location = location;
-    return checked;
   }
 
 };
@@ -209,6 +165,7 @@ var Game = module.exports = {
 
     piece._location = location;
     location._occupant = piece;
+    formerLocation._occupant = Board.dummyPiece;
 
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -240,6 +197,8 @@ var Game = module.exports = {
 
     location._occupant = formerOccupant;
     piece._location = formerLocation;
+    formerLocation._occupant = piece;
+
     if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   },
@@ -614,7 +573,7 @@ module.exports = (function (_Piece) {
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
-      if (!Board.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)) moveSucceeded = true;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)) moveSucceeded = true;
 
       return {
         success: moveSucceeded,
@@ -835,6 +794,7 @@ module.exports = (function () {
         this.hasMoved = true;
         return Board.setLocation(this, location);
       } else {
+        var Game = require("../controllers/Game");
         Game.throwError.illegalMove();
         return false;
       }
@@ -865,7 +825,7 @@ module.exports = (function () {
   return Piece;
 })();
 
-},{"../controllers/Board":2,"../controllers/View":8}],15:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8}],15:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();

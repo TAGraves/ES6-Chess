@@ -69,29 +69,6 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: (location, piece) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location, piece),
-  moveWillPutOwnerInCheck: function (piece, location) {
-    let formerOccupant = location.occupant;
-    let formerLocation = piece.location;
-    let opponent = piece.owner.otherPlayer; 
-    let checked = false;
-    
-    if (formerOccupant !== null) formerOccupant._location = Board.off;
-    
-    piece._location = location;
-    location._occupant = piece;
-    
-    for (let piece of opponent.pieces) {
-      if (piece.location !== Board.off && piece.threateningCheck) {
-        checked = true;
-        break;
-      }
-    }
-
-    location._occupant = formerOccupant;
-    piece._location = formerLocation;
-    if (formerOccupant !== null) formerOccupant._location = location;
-    return checked;
-  }
+  updateView: (location, piece) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location, piece)
 
 };
