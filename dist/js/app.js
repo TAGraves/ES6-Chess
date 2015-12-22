@@ -22,6 +22,7 @@ var Board = module.exports = {
   setLocation: function setLocation(piece, location) {
     piece.location = location;
     Board.updateView(location, piece);
+    return true;
   },
   makeState: function makeState() {
     var columns = [];
@@ -78,7 +79,7 @@ var Board = module.exports = {
     return false;
   },
   updateView: function updateView(location, piece) {
-    return typeof location === "undefined" ? View.updateView() : View.updateViewAt(location, piece.domElement);
+    return typeof location === "undefined" ? View.updateView() : View.updateViewAt(location, piece);
   },
   moveWillPutOwnerInCheck: function moveWillPutOwnerInCheck(piece, location) {
     var formerOccupant = location.occupant;
@@ -261,7 +262,6 @@ var Game = module.exports = {
     Players.player1.pieces[3].moveTo(Board.state[3][1]);
     Players.player1.pieces[1].moveTo(Board.state[0][2]);
     Players.player1.pieces[4].moveTo(Board.state[2][0]);
-    console.log(Board.state[3][0]);
   }
 };
 
@@ -341,6 +341,8 @@ var Setup = module.exports = function () {
 
 var View = module.exports = {
   makeView: function makeView() {
+    var _this = this;
+
     var Board = require('./Board');
     var pane = document.getElementById('pane');
     var board = document.createElement('div');
@@ -350,21 +352,48 @@ var View = module.exports = {
       var evenOrOdd = i % 2 ? 'even' : 'odd';
       row.className = 'row ' + evenOrOdd;
       row.id = 'row-' + i.toString();
-      for (var j = 0; j < 8; j++) {
+
+      var _loop = function _loop(j) {
         var square = document.createElement('div');
-        var _evenOrOdd = j % 2 ? 'even' : 'odd';
-        square.className = 'square ' + _evenOrOdd;
+        var evenOrOdd = j % 2 ? 'even' : 'odd';
+        square.className = 'square ' + evenOrOdd;
         square.id = 'square-' + i.toString() + '-' + j.toString();
-        Board.state[j][i].domElement = square;
+        var boardState = Board.state[j][i];
+        square.addEventListener('dragenter', function (e) {
+          return _this.dragAndDrop.enter(e, boardState);
+        }, false);
+        square.addEventListener('dragover', function (e) {
+          return _this.dragAndDrop.over(e, boardState);
+        }, false);
+        square.addEventListener('drop', function (e) {
+          return _this.dragAndDrop.drop(e, boardState);
+        }, false);
+        square.addEventListener('dragleave', function (e) {
+          return _this.dragAndDrop.exit(e, boardState);
+        }, false);
+        boardState.domElement = square;
         row.appendChild(square);
+      };
+
+      for (var j = 0; j < 8; j++) {
+        _loop(j);
       }
       board.appendChild(row);
     }
     pane.appendChild(board);
   },
   putPieceOnBoard: function putPieceOnBoard(piece, location) {
+    var _this2 = this;
+
+    var View = this;
     var square = location.domElement;
-    square.appendChild(piece);
+    piece.domElement.setAttribute('draggable', 'true');
+    square.appendChild(piece.domElement);
+
+    piece.domElement.addEventListener('dragstart', function (e) {
+      return _this2.dragAndDrop.start(e, piece);
+    }, false);
+    piece.domElement.addEventListener('dragend', this.dragAndDrop.end, false);
   },
   removePiece: function removePiece(piece) {
     piece.parentNode.removeChild(piece);
@@ -375,7 +404,41 @@ var View = module.exports = {
   updateViewAt: function updateViewAt(location, piece) {
     var Board = require('./Board');
     var square = location.domElement;
-    square.appendChild(piece);
+    square.appendChild(piece.domElement);
+  },
+  dragAndDrop: {
+    piece: {},
+    start: function start(e, piece) {
+      View.dragAndDrop.piece = piece;
+      window.setTimeout(function () {
+        return e.target.style.opacity = "0.4";
+      }, 0);
+    },
+    exit: function exit(e, location) {
+      //console.log('exit', location.name);
+    },
+    enter: function enter(e, location) {
+      if (View.dragAndDrop.piece.checkLocation(location).success) {
+        e.preventDefault();
+        console.log('set!');
+      }
+    },
+    over: function over(e, location) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+    },
+    leave: function leave(e, piece) {},
+    drop: function drop(e, location) {
+      console.log('drop');
+      var piece = View.dragAndDrop.piece;
+      var square = e.target;
+      piece.moveTo(location);
+    },
+    end: function end(e) {
+      //console.log('end');
+      View.dragAndDrop.piece = {};
+      e.target.style.opacity = "1";
+    }
   }
 };
 
@@ -403,13 +466,18 @@ module.exports = (function (_Piece) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Bishop).call(this, location, owner, false));
 
     _this.domElement.className = "piece bishop player" + _this.owner.id;
-    _this.moveTo = function (location) {
-      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isDiagonalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) {
-        Board.setLocation(this, location);
-      } else {
-        Game.throwError.illegalMove();
-      }
+    _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9815;" : "&#9821;";
+
+    _this.checkLocation = function (location) {
+      var moveSucceeded = false;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isDiagonalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) moveSucceeded = true;
+
+      return {
+        success: moveSucceeded,
+        type: 1
+      };
     };
+
     return _this;
   }
 
@@ -454,13 +522,35 @@ module.exports = (function (_Piece) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(King).call(this, location, owner, false));
 
     _this.domElement.className = "piece king player" + _this.owner.id;
-    _this.moveTo = function (location) {
+    _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9812;" : "&#9818;";
+
+    _this.checkLocation = function (location) {
+      var moveSucceeded = false;
+      var moveType = 1;
       if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && this.location.offset(location) === 1) {
-        Board.setLocation(this, location);
+        moveSucceeded = true;
       } else if (this.location.offset(location) === 2) {
-        this.castle(location);
+        moveSucceeded = true;
+        moveType = 2;
+        //this.castle(location);
+      }
+
+      return {
+        success: moveSucceeded,
+        type: moveType
+      };
+    };
+
+    _this.moveTo = function (location) {
+      var tryMove = this.checkLocation(location);
+      if (tryMove.success) {
+        if (tryMove.type === 1) Board.setLocation(this, location);
+        if (tryMove.type === 2) this.castle(location);
+        this.hasMoved = true;
+        return this;
       } else {
         Game.throwError.illegalMove();
+        return false;
       }
     };
 
@@ -469,15 +559,18 @@ module.exports = (function (_Piece) {
         var Rook = require("./Rook");
         var direction = this.location.getDirection(location);
         var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
+        console.log(rook.hasMoved, this.hasMoved);
         if (rook instanceof Rook && !rook.hasMoved && !this.hasMoved && !Board.pathIsOccupied(this.location, rook.location) && !Game.moveWillPutOwnerInCheck(this, location) && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
         ) {
             Board.setLocation(this, location, false);
-            Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
+            return Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
           } else {
           Game.throwError.illegalCastle();
+          return false;
         }
       } else {
         Game.throwError.illegalCastle();
+        return false;
       }
     };
     return _this;
@@ -517,13 +610,18 @@ module.exports = (function (_Piece) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Knight).call(this, location, owner, false));
 
     _this.domElement.className = "piece knight player" + _this.owner.id;
-    _this.moveTo = function (location) {
-      if (!Board.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)) {
-        Board.setLocation(this, location);
-      } else {
-        Game.throwError.illegalMove();
-      }
+    _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9816;" : "&#9822;";
+
+    _this.checkLocation = function (location) {
+      var moveSucceeded = false;
+      if (!Board.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)) moveSucceeded = true;
+
+      return {
+        success: moveSucceeded,
+        type: 1
+      };
     };
+
     return _this;
   }
 
@@ -637,42 +735,59 @@ module.exports = (function (_Piece) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Pawn).call(this, location, owner, false));
 
     _this.domElement.className = "piece pawn player" + _this.owner.id;
-    _this.moveTo = function (location) {
-      var offset = this.location.offset(location);
-      var moveSucceeded = false;
+    _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9817;" : "&#9823;";
+
+    _this.checkLocation = function (location) {
+      var offset = this.location.offset(location),
+          moveSucceeded = false,
+          moveType = 0;
       if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.getCardinalDirection(location) === this.owner.otherPlayer.home && offset < 3) {
         if (this.location.offset.horizontal(location) === 0) {
           if (offset === 1 && !location.isOccupied) {
             //move one forward
-            this.hasMoved = true;
-            Board.setLocation(this, location);
             moveSucceeded = true;
+            moveType = 1;
           } else if ( //move two forward
           offset === 2 && !location.isOccupied && !Board.pathIsOccupied(this.location, location) && this.hasMoved === false) {
-            this.hasMoved = true;
-            Board.setLocation(this, location);
-            this.justMovedTwo = true;
             moveSucceeded = true;
+            moveType = 3;
           }
         } else if (offset === 1) {
           if (location.isOccupied && location.occupant.owner !== this.owner) {
             //capture
-            this.hasMoved = true;
-            Board.setLocation(this, location);
             moveSucceeded = true;
+            moveType = 1;
           } else if (!location.isOccupied && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) {
             //en passant
-            this.hasMoved = true;
-            var oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
-            oppOccupant.capture();
-            Board.setLocation(this, location);
-            console.log(oppOccupant);
             moveSucceeded = true;
+            moveType = 2;
           }
         }
       }
 
-      if (!moveSucceeded) Game.throwError.illegalMove();
+      return {
+        success: moveSucceeded,
+        type: moveType
+      };
+    };
+
+    _this.moveTo = function (location) {
+      var tryMove = this.checkLocation(location);
+      if (tryMove.success) {
+        if (tryMove.type === 2) {
+          var oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
+          oppOccupant.capture();
+        }
+
+        if (tryMove.type === 3) {
+          this.justMovedTwo = true;
+        }
+        this.hasMoved = true;
+        return Board.setLocation(this, location);
+      } else {
+        Game.throwError.illegalMove();
+        return false;
+      }
     };
     return _this;
   }
@@ -711,8 +826,19 @@ module.exports = (function () {
     if (!isDummyPiece) {
       var idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
       this.domElement = document.createElement('div');
-      View.putPieceOnBoard(this.domElement, location);
+      View.putPieceOnBoard(this, location);
     }
+
+    this.moveTo = function (location) {
+      var Board = require("../controllers/Board");
+      if (this.checkLocation(location).success) {
+        this.hasMoved = true;
+        return Board.setLocation(this, location);
+      } else {
+        Game.throwError.illegalMove();
+        return false;
+      }
+    };
 
     this.capture = function () {
       var Board = require("../controllers/Board");
@@ -825,13 +951,18 @@ module.exports = (function (_Piece) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Queen).call(this, location, owner, false));
 
     _this.domElement.className = "piece queen player" + _this.owner.id;
-    _this.moveTo = function (location) {
-      if (!Game.moveWillPutOwnerInCheck(this, location) && (this.location.isDiagonalTo(location) || this.location.isCardinalTo(location)) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) {
-        Board.setLocation(this, location);
-      } else {
-        Game.throwError.illegalMove();
-      }
+    _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9813;" : "&#9819;";
+
+    _this.checkLocation = function (location) {
+      var moveSucceeded = false;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && (this.location.isDiagonalTo(location) || this.location.isCardinalTo(location)) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) moveSucceeded = true;
+
+      return {
+        success: moveSucceeded,
+        type: 1
+      };
     };
+
     return _this;
   }
 
@@ -839,7 +970,6 @@ module.exports = (function (_Piece) {
     key: "threateningCheck",
     get: function get() {
       var king = this.owner.otherPlayer.king;
-
       return (this.location.isDiagonalTo(king.location) || this.location.isCardinalTo(king.location)) && !Board.pathIsOccupied(this.location, king.location);
     }
   }]);
@@ -871,13 +1001,17 @@ module.exports = (function (_Piece) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Rook).call(this, location, owner, false));
 
     _this.domElement.className = "piece rook player" + _this.owner.id;
-    _this.moveTo = function (location) {
-      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isCardinalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) {
-        Board.setLocation(this, location);
-      } else {
-        Game.throwError.illegalMove();
-      }
+    _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9814;" : "&#9820;";
+    _this.checkLocation = function (location) {
+      var moveSucceeded = false;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isCardinalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) moveSucceeded = true;
+
+      return {
+        success: moveSucceeded,
+        type: 1
+      };
     };
+
     return _this;
   }
 

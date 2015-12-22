@@ -8,18 +8,22 @@ module.exports = class Rook extends Piece {
   constructor (location, owner) {
     super(location, owner, false);
     this.domElement.className = "piece rook player" + this.owner.id;
-    this.moveTo = function (location) {
+    this.domElement.innerHTML = (this.owner.id === 1) ? "&#9814;" : "&#9820;";
+    this.checkLocation = function (location) {
+      let moveSucceeded = false;
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
         && this.location.isCardinalTo(location)
         && !Board.pathIsOccupied(this.location, location)
         && location.occupant.owner !== this.owner
-      ){
-        Board.setLocation(this, location);
-      } else {
-        Game.throwError.illegalMove();
+      ) moveSucceeded = true;
+      
+      return {
+        success: moveSucceeded,
+        type: 1
       }
     }
+    
   }
   
   get threateningCheck() {

@@ -13,7 +13,18 @@ module.exports = class Piece {
     if(!isDummyPiece) {
       let idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
       this.domElement = document.createElement('div');
-      View.putPieceOnBoard(this.domElement, location);
+      View.putPieceOnBoard(this, location);
+    }
+    
+    this.moveTo = function (location) {
+      let Board = require("../controllers/Board");
+      if (this.checkLocation(location).success) {
+        this.hasMoved = true;
+        return Board.setLocation(this, location);
+      } else {
+        Game.throwError.illegalMove();
+        return false;
+      } 
     }
     
     this.capture = function () {

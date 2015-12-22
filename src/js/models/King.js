@@ -8,18 +8,40 @@ var Direction = require ("../controllers/Direction");
 module.exports = class King extends Piece {
   constructor (location, owner) {
     super(location, owner, false);
-    this.domElement.className = "piece king player" + this.owner.id;    
-    this.moveTo = function (location) {
+    this.domElement.className = "piece king player" + this.owner.id;        
+    this.domElement.innerHTML = (this.owner.id === 1) ? "&#9812;" : "&#9818;";
+    
+    this.checkLocation = function (location) {
+      let moveSucceeded = false;
+      let moveType = 1;
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
         && location.occupant.owner !== this.owner
         && this.location.offset(location) === 1
       ){
-        Board.setLocation(this, location);
+        moveSucceeded = true;
       } else if (this.location.offset(location) === 2) {
-        this.castle(location);
+        moveSucceeded = true;
+        moveType = 2;
+        //this.castle(location);
+      } 
+      
+      return {
+        success: moveSucceeded,
+        type: moveType
+      }
+    }
+    
+    this.moveTo = function (location) {
+      let tryMove = this.checkLocation(location);
+      if (tryMove.success) {
+        if (tryMove.type === 1) Board.setLocation(this, location);
+        if (tryMove.type === 2) this.castle(location);
+        this.hasMoved = true;
+        return this;
       } else {
         Game.throwError.illegalMove();
+        return false;
       } 
     }
     
@@ -31,6 +53,7 @@ module.exports = class King extends Piece {
         let Rook = require("./Rook")
         let direction = this.location.getDirection(location);
         let rook = (direction === "west") ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
+        console.log(rook.hasMoved, this.hasMoved);
         if (
           rook instanceof Rook
           && !rook.hasMoved 
@@ -40,12 +63,14 @@ module.exports = class King extends Piece {
           && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
         ) {
           Board.setLocation(this, location, false);
-          Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
+          return Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
         } else {
           Game.throwError.illegalCastle();
+          return false;
         }
       } else {
         Game.throwError.illegalCastle();
+        return false;
       }
     }
   }

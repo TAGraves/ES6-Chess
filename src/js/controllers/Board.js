@@ -13,6 +13,7 @@ var Board = module.exports = {
   setLocation: function (piece, location) {
     piece.location = location;
     Board.updateView(location, piece);
+    return true;
   },
   makeState: function () {
     let columns = [];
@@ -68,7 +69,7 @@ var Board = module.exports = {
     }
     return false;
   },
-  updateView: (location, piece) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location, piece.domElement),
+  updateView: (location, piece) => (typeof location === "undefined") ? View.updateView() : View.updateViewAt(location, piece),
   moveWillPutOwnerInCheck: function (piece, location) {
     let formerOccupant = location.occupant;
     let formerLocation = piece.location;

@@ -41,6 +41,5 @@ var Game = module.exports = {
     Players.player1.pieces[3].moveTo(Board.state[3][1]);
     Players.player1.pieces[1].moveTo(Board.state[0][2]);
     Players.player1.pieces[4].moveTo(Board.state[2][0]);
-    console.log(Board.state[3][0]);
   }
 };

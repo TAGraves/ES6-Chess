@@ -9,9 +9,12 @@ module.exports = class Pawn extends Piece {
   constructor (location, owner) {
     super(location, owner, false);
     this.domElement.className = "piece pawn player" + this.owner.id;
-    this.moveTo = function (location) {
-      var offset = this.location.offset(location);
-      var moveSucceeded = false;
+    this.domElement.innerHTML = (this.owner.id === 1) ? "&#9817;" : "&#9823;";
+
+    this.checkLocation = function (location) {
+      var offset = this.location.offset(location),
+          moveSucceeded = false,
+          moveType = 0;
       if (
         !Game.moveWillPutOwnerInCheck(this, location)
         && this.location.getCardinalDirection(location) === this.owner.otherPlayer.home
@@ -19,37 +22,51 @@ module.exports = class Pawn extends Piece {
       ){
         if (this.location.offset.horizontal(location) === 0) {
           if (offset === 1 && !location.isOccupied) { //move one forward
-            this.hasMoved = true;
-            Board.setLocation(this, location);
             moveSucceeded = true;
+            moveType = 1;
           } else if ( //move two forward
             offset === 2
             && !location.isOccupied
             && !Board.pathIsOccupied(this.location, location)
             && this.hasMoved === false
           ){
-            this.hasMoved = true;
-            Board.setLocation(this, location);
-            this.justMovedTwo = true;
             moveSucceeded = true;
+            moveType = 3;
           } 
         } else if (offset === 1) {
           if (location.isOccupied && location.occupant.owner !== this.owner) { //capture
-            this.hasMoved = true;
-            Board.setLocation(this, location);
             moveSucceeded = true;
+            moveType = 1;
           } else if (!location.isOccupied && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) { //en passant
-            this.hasMoved = true;
-            let oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
-            oppOccupant.capture();
-            Board.setLocation(this, location);
-            console.log(oppOccupant);
             moveSucceeded = true;
+            moveType = 2;
           }
         }
       }
       
-      if (!moveSucceeded) Game.throwError.illegalMove();
+      return {
+        success: moveSucceeded,
+        type: moveType
+      };
+    };
+    
+    this.moveTo = function (location) {
+      let tryMove = this.checkLocation(location);
+      if (tryMove.success) {
+        if (tryMove.type === 2) {
+          let oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
+          oppOccupant.capture();
+        }
+        
+        if(tryMove.type === 3) {
+          this.justMovedTwo = true;
+        }
+        this.hasMoved = true;
+        return Board.setLocation(this, location);
+      } else {
+        Game.throwError.illegalMove();
+        return false;
+      }
     }
   }
   

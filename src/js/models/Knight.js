@@ -8,7 +8,10 @@ module.exports = class Knight extends Piece {
   constructor (location, owner) {
     super(location, owner, false);
     this.domElement.className = "piece knight player" + this.owner.id;
-    this.moveTo = function (location) {
+    this.domElement.innerHTML = (this.owner.id === 1) ? "&#9816;" : "&#9822;";
+    
+    this.checkLocation = function (location) {
+      let moveSucceeded = false;
       if (
         !Board.moveWillPutOwnerInCheck(this, location)
         && location.occupant.owner !== this.owner
@@ -16,12 +19,14 @@ module.exports = class Knight extends Piece {
           (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1)
           || (this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)
         )
-      ){
-        Board.setLocation(this, location);
-      } else {
-        Game.throwError.illegalMove();
-      } 
+      ) moveSucceeded = true;
+      
+      return {
+        success: moveSucceeded,
+        type: 1
+      }
     }
+    
   }
   
   get threateningCheck() {

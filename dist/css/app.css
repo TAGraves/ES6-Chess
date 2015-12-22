@@ -9,53 +9,40 @@
   height: 50px;
 }
 
-.row.odd .square.odd, .row.even .square.even {
-  background: #fff;
+.piece {
+  color :#000;
+  font-size: 33px;
+  height: 50px;
+  text-shadow: 0 1px #fff;
+  width: 50px;
+  line-height: 50px;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
-.row.odd .square.even, .row.even .square.odd {
-  background: #000;
-}
 
 .board {
   width: 400px;
-  border: 2px solid #000;
+  border: 5px solid #333;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
-.piece {
-  width: 36px;
-  height: 36px;
-  margin: 6px;
+.square {
+  background: #fff;
+  background: -moz-linear-gradient(top, #fff, #eee);
+  background: -webkit-gradient(linear,0 0, 0 100%, from(#fff), to(#eee));
+  height: 48px;
+  text-align: center;
+  width: 48px;
+  border: 1px solid #000;
 }
-
-.rook {
-  background: green;
-}
-
-.knight {
-  background: yellow;
-}
-
-.bishop {
-  background: pink;
-}
-
-.queen {
-  background: brown;
-}
-
-.king {
-  background: purple;
-}
-
-.pawn {
-  background: lightgrey;
-}
-
-.player1 {
-  border: 1px solid blue;
-}
-
-.player2 {
-  border: 1px solid red;
+.odd .even, .even .odd {
+  background: #ccc;
+  background: -moz-linear-gradient(top, #ccc, #eee);
+  background: -webkit-gradient(linear,0 0, 0 100%, from(#ccc), to(#eee));
 }
