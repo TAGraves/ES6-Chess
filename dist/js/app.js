@@ -763,7 +763,7 @@ module.exports = (function (_Piece) {
         }
 
         if (tryMove.type === 4) {
-          return this.promote();
+          return this.promote(location);
         }
 
         this.hasMoved = true;
@@ -774,7 +774,35 @@ module.exports = (function (_Piece) {
       }
     };
 
-    _this.promote = function (location, pieceType) {};
+    _this.promote = function (location) {
+      var pieceType = prompt('Which piece do you want? Answers are "Queen" "Bishop" "Knight", "Rook" without quotes');
+
+      switch (pieceType) {
+        case "Queen":
+          break;
+        case "Bishop":
+          break;
+        case "Knight":
+          break;
+        case "Rook":
+          break;
+        default:
+          this.promote(location);return false;
+      }
+
+      var pieces = require("../controllers/Pieces");
+      var piece = new pieces[pieceType](this.location, this.owner);
+
+      for (var index in this.owner.pieces) {
+        if (this.owner.pieces[index] === this) {
+          this.owner.pieces[index] = piece;
+          this.capture();
+        }
+      }
+      piece.hasMoved = true;
+      Board.setLocation(piece, location);
+      return true;
+    };
     return _this;
   }
 
@@ -790,7 +818,7 @@ module.exports = (function (_Piece) {
   return Pawn;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Players":6,"./Piece":14}],14:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Pieces":5,"../controllers/Players":6,"./Piece":14}],14:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();

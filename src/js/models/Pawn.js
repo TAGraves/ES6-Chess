@@ -78,7 +78,7 @@ module.exports = class Pawn extends Piece {
         }
         
         if (tryMove.type === 4) {
-          return this.promote();
+          return this.promote(location);
         }
         
         this.hasMoved = true;
@@ -89,8 +89,29 @@ module.exports = class Pawn extends Piece {
       }
     };
     
-    this.promote = function (location, pieceType) {
+    this.promote = function (location) {
+      let pieceType = prompt('Which piece do you want? Answers are "Queen" "Bishop" "Knight", "Rook" without quotes');
       
+      switch (pieceType) {
+        case "Queen": break;
+        case "Bishop": break;
+        case "Knight": break;
+        case "Rook": break;
+        default: this.promote(location); return false;
+      }
+      
+      let pieces = require("../controllers/Pieces");
+      let piece = new pieces[pieceType](this.location, this.owner);
+      
+      for (let index in this.owner.pieces) {
+        if (this.owner.pieces[index] === this) {
+          this.owner.pieces[index] = piece;
+          this.capture();
+        }
+      }
+      piece.hasMoved = true;
+      Board.setLocation(piece, location);
+      return true;
     }
   }
   
