@@ -16,6 +16,7 @@ module.exports = class Rook extends Piece {
         && this.location.isCardinalTo(location)
         && !Board.pathIsOccupied(this.location, location)
         && location.occupant.owner !== this.owner
+        && this.owner.isTurnPlayer
       ) moveSucceeded = true;
       
       return {

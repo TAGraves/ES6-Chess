@@ -19,6 +19,7 @@ module.exports = class Pawn extends Piece {
         !Game.moveWillPutOwnerInCheck(this, location)
         && this.location.getCardinalDirection(location) === this.owner.otherPlayer.home
         && offset < 3
+        && this.owner.isTurnPlayer
       ){
         if (this.location.offset.horizontal(location) === 0) {
           if (offset === 1 && !location.isOccupied) { //move one forward

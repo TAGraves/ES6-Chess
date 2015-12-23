@@ -10,9 +10,14 @@ var Board = module.exports = {
   capture: function (piece) {
     View.removePiece(piece.domElement);
   },
-  setLocation: function (piece, location) {
+  setLocation: function (piece, location, updateTurn = true) {
     piece.location = location;
     Board.updateView(location, piece);
+    
+    if (updateTurn) {
+      piece.owner.otherPlayer.isTurnPlayer = true;
+    }
+    
     return true;
   },
   makeState: function () {

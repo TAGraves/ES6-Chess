@@ -17,6 +17,7 @@ module.exports = class Bishop extends Piece {
         && this.location.isDiagonalTo(location) 
         && !Board.pathIsOccupied(this.location, location)
         && location.occupant.owner !== this.owner
+        && this.owner.isTurnPlayer
       ) moveSucceeded = true;
 
       return {

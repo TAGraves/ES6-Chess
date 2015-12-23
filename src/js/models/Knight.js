@@ -19,6 +19,7 @@ module.exports = class Knight extends Piece {
           (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1)
           || (this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)
         )
+        && this.owner.isTurnPlayer
       ) moveSucceeded = true;
       
       return {

@@ -20,6 +20,7 @@ module.exports = class Queen extends Piece {
         )
         && !Board.pathIsOccupied(this.location, location)
         && location.occupant.owner !== this.owner
+        && this.owner.isTurnPlayer
       ) moveSucceeded = true;
 
       return {

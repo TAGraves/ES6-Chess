@@ -5,6 +5,7 @@ module.exports = class Player {
     this.id = id;
     this.home = home;
     this.pieces = [];
+    this._isTurnPlayer = false;
     
     this.filterPieces = function (pieceType) {
       let pieceArray = [];
@@ -23,4 +24,14 @@ module.exports = class Player {
     let Players = require("../controllers/Players");
     return Players.reverse(this);
   }
+  
+  get isTurnPlayer() {
+    return this._isTurnPlayer;
+  }
+  
+  set isTurnPlayer(b) {
+    this._isTurnPlayer = true;
+    this.otherPlayer._isTurnPlayer = false;
+  }
+  
 }

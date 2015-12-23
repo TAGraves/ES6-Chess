@@ -20,8 +20,15 @@ var Board = module.exports = {
     View.removePiece(piece.domElement);
   },
   setLocation: function setLocation(piece, location) {
+    var updateTurn = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
+
     piece.location = location;
     Board.updateView(location, piece);
+
+    if (updateTurn) {
+      piece.owner.otherPlayer.isTurnPlayer = true;
+    }
+
     return true;
   },
   makeState: function makeState() {
@@ -213,14 +220,6 @@ var Game = module.exports = {
   debug: function debug() {
     var Players = require("./Players");
     var Pieces = require("./Pieces");
-    Players.player1.pieces[11].moveTo(Board.state[3][3]);
-    Players.player1.pieces[11].moveTo(Board.state[3][4]);
-    Players.player1.pieces[11].moveTo(Board.state[3][5]);
-    Players.player1.pieces[11].moveTo(Board.state[4][6]);
-    Players.player1.pieces[2].moveTo(Board.state[4][2]);
-    Players.player1.pieces[3].moveTo(Board.state[3][1]);
-    Players.player1.pieces[1].moveTo(Board.state[0][2]);
-    Players.player1.pieces[4].moveTo(Board.state[2][0]);
   }
 };
 
@@ -292,6 +291,7 @@ var Setup = module.exports = function () {
   Board.makeState();
   Board.makeView();
   Players.makePlayers();
+  Players.player1.isTurnPlayer = true;
   Game.debug();
 };
 
@@ -429,7 +429,7 @@ module.exports = (function (_Piece) {
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
-      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isDiagonalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) moveSucceeded = true;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isDiagonalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner && this.owner.isTurnPlayer) moveSucceeded = true;
 
       return {
         success: moveSucceeded,
@@ -488,10 +488,15 @@ module.exports = (function (_Piece) {
       var moveType = 1;
       if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && this.location.offset(location) === 1) {
         moveSucceeded = true;
-      } else if (this.location.offset(location) === 2) {
-        moveSucceeded = true;
-        moveType = 2;
-        //this.castle(location);
+      } else if (this.location.offset(location) === 2 && (location.row === this.owner.id - 1 || location.row === this.owner.id + 5) && (location.column === 2 || location.column === 6)) {
+        var Rook = require("./Rook");
+        var direction = this.location.getDirection(location);
+        var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
+        if (rook instanceof Rook && !rook.hasMoved && !this.hasMoved && !Board.pathIsOccupied(this.location, rook.location) && !Game.moveWillPutOwnerInCheck(this, location) && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
+        ) {
+            moveSucceeded = true;
+            moveType = 2;
+          }
       }
 
       return {
@@ -518,24 +523,13 @@ module.exports = (function (_Piece) {
     };
 
     _this.castle = function (location) {
-      if ((location.row === 0 || location.row === 7) && (location.column === 2 || location.column === 6)) {
-        var Rook = require("./Rook");
-        var direction = this.location.getDirection(location);
-        var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
-        console.log(rook.hasMoved, this.hasMoved);
-        if (rook instanceof Rook && !rook.hasMoved && !this.hasMoved && !Board.pathIsOccupied(this.location, rook.location) && !Game.moveWillPutOwnerInCheck(this, location) && !Game.moveWillPutOwnerInCheck(this, Board.traverse(this.location, 1, direction)) //so it can't move through check
-        ) {
-            Board.setLocation(this, location, false);
-            return Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)));
-          } else {
-          Game.throwError.illegalCastle();
-          return false;
-        }
-      } else {
-        Game.throwError.illegalCastle();
-        return false;
-      }
+      var direction = this.location.getDirection(location);
+      var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
+      rook.hasMoved = true;
+      Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)), false);
+      return Board.setLocation(this, location);
     };
+
     return _this;
   }
 
@@ -577,7 +571,7 @@ module.exports = (function (_Piece) {
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
-      if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2)) moveSucceeded = true;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && (this.location.offset.vertical(location) === 2 && this.location.offset.horizontal(location) === 1 || this.location.offset.vertical(location) === 1 && this.location.offset.horizontal(location) === 2) && this.owner.isTurnPlayer) moveSucceeded = true;
 
       return {
         success: moveSucceeded,
@@ -704,7 +698,7 @@ module.exports = (function (_Piece) {
       var offset = this.location.offset(location),
           moveSucceeded = false,
           moveType = 0;
-      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.getCardinalDirection(location) === this.owner.otherPlayer.home && offset < 3) {
+      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.getCardinalDirection(location) === this.owner.otherPlayer.home && offset < 3 && this.owner.isTurnPlayer) {
         if (this.location.offset.horizontal(location) === 0) {
           if (offset === 1 && !location.isOccupied) {
             //move one forward
@@ -898,6 +892,7 @@ module.exports = (function () {
     this.id = id;
     this.home = home;
     this.pieces = [];
+    this._isTurnPlayer = false;
 
     this.filterPieces = function (pieceType) {
       var pieceArray = [];
@@ -941,6 +936,15 @@ module.exports = (function () {
       var Players = require("../controllers/Players");
       return Players.reverse(this);
     }
+  }, {
+    key: "isTurnPlayer",
+    get: function get() {
+      return this._isTurnPlayer;
+    },
+    set: function set(b) {
+      this._isTurnPlayer = true;
+      this.otherPlayer._isTurnPlayer = false;
+    }
   }]);
 
   return Player;
@@ -974,7 +978,7 @@ module.exports = (function (_Piece) {
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
-      if (!Game.moveWillPutOwnerInCheck(this, location) && (this.location.isDiagonalTo(location) || this.location.isCardinalTo(location)) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) moveSucceeded = true;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && (this.location.isDiagonalTo(location) || this.location.isCardinalTo(location)) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner && this.owner.isTurnPlayer) moveSucceeded = true;
 
       return {
         success: moveSucceeded,
@@ -1023,7 +1027,7 @@ module.exports = (function (_Piece) {
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9814;" : "&#9820;";
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
-      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isCardinalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner) moveSucceeded = true;
+      if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isCardinalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner && this.owner.isTurnPlayer) moveSucceeded = true;
 
       return {
         success: moveSucceeded,
