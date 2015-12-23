@@ -503,10 +503,14 @@ module.exports = (function (_Piece) {
     _this.moveTo = function (location) {
       var tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        this.owner.justMovedTwo = {
+          didMove: false,
+          piece: Board.dummyPiece
+        };
         if (tryMove.type === 1) Board.setLocation(this, location);
         if (tryMove.type === 2) this.castle(location);
         this.hasMoved = true;
-        return this;
+        return true;
       } else {
         Game.throwError.illegalMove();
         return false;
@@ -716,12 +720,19 @@ module.exports = (function (_Piece) {
             //capture
             moveSucceeded = true;
             moveType = 1;
-          } else if (!location.isOccupied && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) {
+          } else if (!location.isOccupied && this.owner.otherPlayer.justMovedTwo.didMove) {
             //en passant
-            moveSucceeded = true;
-            moveType = 2;
+            if (this.owner.otherPlayer.justMovedTwo.piece === Board.traverse(location, 1, this.owner.home).occupant) {
+              moveSucceeded = true;
+              moveType = 2;
+            }
           }
         }
+      }
+
+      if (moveSucceeded && (location.row === 7 || location.row === 0)) {
+        //promotion
+        moveType = 4;
       }
 
       return {
@@ -733,14 +744,28 @@ module.exports = (function (_Piece) {
     _this.moveTo = function (location) {
       var tryMove = this.checkLocation(location);
       if (tryMove.success) {
+
+        this.owner.justMovedTwo = {
+          didMove: false,
+          piece: Board.dummyPiece
+        };
+
         if (tryMove.type === 2) {
           var oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
           oppOccupant.capture();
         }
 
         if (tryMove.type === 3) {
-          this.justMovedTwo = true;
+          this.owner.justMovedTwo = {
+            didMove: true,
+            piece: this
+          };
         }
+
+        if (tryMove.type === 4) {
+          return this.promote();
+        }
+
         this.hasMoved = true;
         return Board.setLocation(this, location);
       } else {
@@ -748,6 +773,8 @@ module.exports = (function (_Piece) {
         return false;
       }
     };
+
+    _this.promote = function (location, pieceType) {};
     return _this;
   }
 
@@ -792,6 +819,10 @@ module.exports = (function () {
       var Board = require("../controllers/Board");
       if (this.checkLocation(location).success) {
         this.hasMoved = true;
+        this.owner.justMovedTwo = {
+          didMove: false,
+          piece: Board.dummyPiece
+        };
         return Board.setLocation(this, location);
       } else {
         var Game = require("../controllers/Game");

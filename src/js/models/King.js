@@ -35,10 +35,14 @@ module.exports = class King extends Piece {
     this.moveTo = function (location) {
       let tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        this.owner.justMovedTwo = {
+          didMove: false,
+          piece: Board.dummyPiece
+        }
         if (tryMove.type === 1) Board.setLocation(this, location);
         if (tryMove.type === 2) this.castle(location);
         this.hasMoved = true;
-        return this;
+        return true;
       } else {
         Game.throwError.illegalMove();
         return false;

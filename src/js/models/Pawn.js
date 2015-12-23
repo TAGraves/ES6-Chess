@@ -37,11 +37,17 @@ module.exports = class Pawn extends Piece {
           if (location.isOccupied && location.occupant.owner !== this.owner) { //capture
             moveSucceeded = true;
             moveType = 1;
-          } else if (!location.isOccupied && Board.traverse(location, 1, this.owner.home).occupant.justMovedTwo) { //en passant
-            moveSucceeded = true;
-            moveType = 2;
+          } else if (!location.isOccupied && this.owner.otherPlayer.justMovedTwo.didMove) { //en passant
+            if (this.owner.otherPlayer.justMovedTwo.piece === Board.traverse(location, 1, this.owner.home).occupant) {
+              moveSucceeded = true;
+              moveType = 2;
+            }
           }
         }
+      }
+      
+      if (moveSucceeded && (location.row === 7 || location.row === 0)) { //promotion
+        moveType = 4;
       }
       
       return {
@@ -53,20 +59,38 @@ module.exports = class Pawn extends Piece {
     this.moveTo = function (location) {
       let tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        
+          this.owner.justMovedTwo = {
+            didMove: false,
+            piece: Board.dummyPiece
+          }
+
         if (tryMove.type === 2) {
           let oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
           oppOccupant.capture();
         }
         
-        if(tryMove.type === 3) {
-          this.justMovedTwo = true;
+        if (tryMove.type === 3) {
+          this.owner.justMovedTwo = {
+            didMove: true,
+            piece: this
+          }
         }
+        
+        if (tryMove.type === 4) {
+          return this.promote();
+        }
+        
         this.hasMoved = true;
         return Board.setLocation(this, location);
       } else {
         Game.throwError.illegalMove();
         return false;
       }
+    };
+    
+    this.promote = function (location, pieceType) {
+      
     }
   }
   

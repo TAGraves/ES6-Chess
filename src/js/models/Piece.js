@@ -20,6 +20,10 @@ module.exports = class Piece {
       let Board = require("../controllers/Board");
       if (this.checkLocation(location).success) {
         this.hasMoved = true;
+        this.owner.justMovedTwo = {
+          didMove: false,
+          piece: Board.dummyPiece
+        }
         return Board.setLocation(this, location);
       } else {
         let Game = require("../controllers/Game");
