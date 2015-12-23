@@ -9,6 +9,7 @@ module.exports = class Piece {
     this.owner = owner;
     this.hasMoved = false;
     this.isCaptured = false;
+    this.justCaptured = false;
     location.occupant = this;
     if(!isDummyPiece) {
       let idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
@@ -43,7 +44,10 @@ module.exports = class Piece {
   set location (location) {
     let Board = require("../controllers/Board");
     this._location._occupant = Board.dummyPiece;
-    if (location.occupant !== Board.dummyPiece) location.occupant.capture();
+    if (location.occupant !== Board.dummyPiece) {
+      location.occupant.capture();
+      this.justCaptured = true;
+    }
     this._location = location;
     location._occupant = this;
   }

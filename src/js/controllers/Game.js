@@ -29,12 +29,34 @@ var Game = module.exports = {
     if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   },
+  checkForCheckmate: function (player) {
+    if (this.moveWillPutOwnerInCheck(player.pieces[4], player.pieces[4].location)) {
+      //player is checked
+      let freeMove = false;
+      for (let row of Board.state) {
+        for (let location of row) {
+          for (let piece of player.pieces) {
+            if (piece.location !== Board.off) {
+              if (piece.checkLocation(location).success) {
+                freeMove = true;
+              }
+            }
+          }
+        }
+      }
+      
+      if (!freeMove) {
+        alert('Checkmate! Good day, sir!');
+        document.getElementById('startButton').style.display = "block";
+      }
+    }
+  },
   throwError: {
-    illegalMove: () => console.log('illegal move!'),
-    illegalCastle: () => console.log('illegal castle!')
+    illegalMove: () => false,//console.log('illegal move!'),
+    illegalCastle: () => false//console.log('illegal castle!')
   },
   debug: function () {
-    var Players = require("./Players");
-    var Pieces = require("./Pieces");
+    //var Players = require("./Players");
+    //var Pieces = require("./Pieces");
   }
 };

@@ -7,6 +7,7 @@ var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
   dummyPiece: new Piece({}, {}, true),
+  turnCounter: 0,
   capture: function (piece) {
     View.removePiece(piece.domElement);
   },
@@ -15,7 +16,12 @@ var Board = module.exports = {
     Board.updateView(location, piece);
     
     if (updateTurn) {
+      let turn = (piece.owner.id === 1) ? ++Board.turnCounter : Board.turnCounter;
+      let Game = require("./Game");
+      
+      View.updateTurn(turn, piece);
       piece.owner.otherPlayer.isTurnPlayer = true;
+      Game.checkForCheckmate(piece.owner.otherPlayer);
     }
     
     return true;

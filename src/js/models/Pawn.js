@@ -10,7 +10,8 @@ module.exports = class Pawn extends Piece {
     super(location, owner, false);
     this.domElement.className = "piece pawn player" + this.owner.id;
     this.domElement.innerHTML = (this.owner.id === 1) ? "&#9817;" : "&#9823;";
-
+    this.notation = '';
+    
     this.checkLocation = function (location) {
       var offset = this.location.offset(location),
           moveSucceeded = false,
@@ -118,10 +119,10 @@ module.exports = class Pawn extends Piece {
   
   get threateningCheck() {
     let king = this.owner.otherPlayer.king;
-    
     return ((this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "west"
          || this.location.getDirection(king.location) === (this.owner.otherPlayer.home) + "east")
-         && this.location.offset(king.location) === 1);
+         && this.location.offset.vertical(king.location) === 1
+         && this.location.offset.horizontal(king.location) === 1);
   }
 
 }

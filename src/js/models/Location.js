@@ -12,7 +12,15 @@ module.exports = class Location {
     this.column = column;
     this._occupant = occupant;  
     
-    this.offset = (location) => this.offset.vertical(location) || this.offset.horizontal(location);
+    this.offset = function (location) {
+      let v = this.offset.vertical(location),
+          h = this.offset.horizontal(location);
+      if (v === h) {
+        return v;
+      } else {
+        return v + h;
+      }
+    }
     
     this.offset.vertical = (location) => Math.abs(this.row - location.row);
     

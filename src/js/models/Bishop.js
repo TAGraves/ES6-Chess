@@ -9,7 +9,7 @@ module.exports = class Bishop extends Piece {
     super(location, owner, false);
     this.domElement.className = "piece bishop player" + this.owner.id;
     this.domElement.innerHTML = (this.owner.id === 1) ? "&#9815;" : "&#9821;";
-    
+    this.notation = 'B';
     this.checkLocation = function (location) {
       let moveSucceeded = false;
       if (

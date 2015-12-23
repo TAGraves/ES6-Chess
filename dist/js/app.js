@@ -3,7 +3,11 @@
 
 var Setup = require("./controllers/Setup");
 
-Setup();
+document.getElementById('startButton').addEventListener('click', function () {
+  this.style.display = 'none';
+  Setup();
+});
+//Setup();
 
 },{"./controllers/Setup":7}],2:[function(require,module,exports){
 "use strict";
@@ -16,6 +20,7 @@ var Board = module.exports = {
   state: [],
   off: new Location("off", -1, -1),
   dummyPiece: new Piece({}, {}, true),
+  turnCounter: 0,
   capture: function capture(piece) {
     View.removePiece(piece.domElement);
   },
@@ -26,7 +31,12 @@ var Board = module.exports = {
     Board.updateView(location, piece);
 
     if (updateTurn) {
+      var turn = piece.owner.id === 1 ? ++Board.turnCounter : Board.turnCounter;
+      var Game = require("./Game");
+
+      View.updateTurn(turn, piece);
       piece.owner.otherPlayer.isTurnPlayer = true;
+      Game.checkForCheckmate(piece.owner.otherPlayer);
     }
 
     return true;
@@ -91,7 +101,7 @@ var Board = module.exports = {
 
 };
 
-},{"../models/Location":12,"../models/Piece":14,"./View":8}],3:[function(require,module,exports){
+},{"../models/Location":12,"../models/Piece":14,"./Game":4,"./View":8}],3:[function(require,module,exports){
 "use strict";
 
 var Board = require("./Board");
@@ -209,21 +219,104 @@ var Game = module.exports = {
     if (formerOccupant !== null) formerOccupant._location = location;
     return checked;
   },
-  throwError: {
-    illegalMove: function illegalMove() {
-      return console.log('illegal move!');
-    },
-    illegalCastle: function illegalCastle() {
-      return console.log('illegal castle!');
+  checkForCheckmate: function checkForCheckmate(player) {
+    if (this.moveWillPutOwnerInCheck(player.pieces[4], player.pieces[4].location)) {
+      //player is checked
+      var freeMove = false;
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = Board.state[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var row = _step2.value;
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
+
+          try {
+            for (var _iterator3 = row[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var location = _step3.value;
+              var _iteratorNormalCompletion4 = true;
+              var _didIteratorError4 = false;
+              var _iteratorError4 = undefined;
+
+              try {
+                for (var _iterator4 = player.pieces[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                  var piece = _step4.value;
+
+                  if (piece.location !== Board.off) {
+                    if (piece.checkLocation(location).success) {
+                      freeMove = true;
+                    }
+                  }
+                }
+              } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                    _iterator4.return();
+                  }
+                } finally {
+                  if (_didIteratorError4) {
+                    throw _iteratorError4;
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                _iterator3.return();
+              }
+            } finally {
+              if (_didIteratorError3) {
+                throw _iteratorError3;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      if (!freeMove) {
+        alert('Checkmate! Good day, sir!');
+        document.getElementById('startButton').style.display = "block";
+      }
     }
   },
+  throwError: {
+    illegalMove: function illegalMove() {
+      return false;
+    }, //console.log('illegal move!'),
+    illegalCastle: function illegalCastle() {
+      return false;
+    } //console.log('illegal castle!')
+  },
   debug: function debug() {
-    var Players = require("./Players");
-    var Pieces = require("./Pieces");
+    //var Players = require("./Players");
+    //var Pieces = require("./Pieces");
   }
 };
 
-},{"./Board":2,"./Pieces":5,"./Players":6}],5:[function(require,module,exports){
+},{"./Board":2,"./Players":6}],5:[function(require,module,exports){
 "use strict";
 
 var King = require("../models/King");
@@ -305,6 +398,8 @@ var View = module.exports = {
     var Board = require('./Board');
     var pane = document.getElementById('pane');
     var board = document.createElement('div');
+
+    pane.innerHTML = "";
     board.className = 'board';
     for (var i = 7; i > -1; i--) {
       var row = document.createElement('div');
@@ -327,9 +422,6 @@ var View = module.exports = {
         square.addEventListener('drop', function (e) {
           return _this.dragAndDrop.drop(e, boardState);
         }, false);
-        square.addEventListener('dragleave', function (e) {
-          return _this.dragAndDrop.exit(e, boardState);
-        }, false);
         boardState.domElement = square;
         row.appendChild(square);
       };
@@ -340,6 +432,10 @@ var View = module.exports = {
       board.appendChild(row);
     }
     pane.appendChild(board);
+
+    var notation = document.createElement('div');
+    notation.id = 'notation';
+    pane.appendChild(notation);
   },
   putPieceOnBoard: function putPieceOnBoard(piece, location) {
     var _this2 = this;
@@ -357,6 +453,16 @@ var View = module.exports = {
   removePiece: function removePiece(piece) {
     piece.parentNode.removeChild(piece);
   },
+  updateTurn: function updateTurn(turn, piece) {
+    var notationDiv = document.getElementById('notation');
+    if (piece.owner.id === 1) {
+      notationDiv.innerHTML += turn + ". " + piece.notation + piece.location.name + " ";
+    } else if (turn % 3 !== 0) {
+      notationDiv.innerHTML += piece.notation + piece.location.name + " ";
+    } else {
+      notationDiv.innerHTML += piece.notation + piece.location.name + "<br>";
+    }
+  },
   updateView: function updateView() {
     var Board = require('./Board');
   },
@@ -373,13 +479,9 @@ var View = module.exports = {
         return e.target.style.opacity = "0.4";
       }, 0);
     },
-    exit: function exit(e, location) {
-      //console.log('exit', location.name);
-    },
     enter: function enter(e, location) {
       if (View.dragAndDrop.piece.checkLocation(location).success) {
         e.preventDefault();
-        console.log('set!');
       }
     },
     over: function over(e, location) {
@@ -388,13 +490,11 @@ var View = module.exports = {
     },
     leave: function leave(e, piece) {},
     drop: function drop(e, location) {
-      console.log('drop');
       var piece = View.dragAndDrop.piece;
       var square = e.target;
       piece.moveTo(location);
     },
     end: function end(e) {
-      //console.log('end');
       View.dragAndDrop.piece = {};
       e.target.style.opacity = "1";
     }
@@ -426,7 +526,7 @@ module.exports = (function (_Piece) {
 
     _this.domElement.className = "piece bishop player" + _this.owner.id;
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9815;" : "&#9821;";
-
+    _this.notation = 'B';
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
       if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isDiagonalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner && this.owner.isTurnPlayer) moveSucceeded = true;
@@ -482,13 +582,14 @@ module.exports = (function (_Piece) {
 
     _this.domElement.className = "piece king player" + _this.owner.id;
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9812;" : "&#9818;";
+    _this.notation = 'K';
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
       var moveType = 1;
-      if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && this.location.offset(location) === 1) {
+      if (!Game.moveWillPutOwnerInCheck(this, location) && location.occupant.owner !== this.owner && this.location.offset(location) === 1 && this.owner.isTurnPlayer) {
         moveSucceeded = true;
-      } else if (this.location.offset(location) === 2 && (location.row === this.owner.id - 1 || location.row === this.owner.id + 5) && (location.column === 2 || location.column === 6)) {
+      } else if (this.location.offset(location) === 2 && (location.row === this.owner.id - 1 || location.row === this.owner.id + 5) && (location.column === 2 || location.column === 6) && this.owner.isTurnPlayer) {
         var Rook = require("./Rook");
         var direction = this.location.getDirection(location);
         var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
@@ -568,6 +669,7 @@ module.exports = (function (_Piece) {
 
     _this.domElement.className = "piece knight player" + _this.owner.id;
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9816;" : "&#9822;";
+    _this.notation = 'N';
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
@@ -619,7 +721,13 @@ module.exports = (function () {
     this._occupant = occupant;
 
     this.offset = function (location) {
-      return _this.offset.vertical(location) || _this.offset.horizontal(location);
+      var v = this.offset.vertical(location),
+          h = this.offset.horizontal(location);
+      if (v === h) {
+        return v;
+      } else {
+        return v + h;
+      }
     };
 
     this.offset.vertical = function (location) {
@@ -693,6 +801,7 @@ module.exports = (function (_Piece) {
 
     _this.domElement.className = "piece pawn player" + _this.owner.id;
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9817;" : "&#9823;";
+    _this.notation = '';
 
     _this.checkLocation = function (location) {
       var offset = this.location.offset(location),
@@ -804,8 +913,7 @@ module.exports = (function (_Piece) {
     key: "threateningCheck",
     get: function get() {
       var king = this.owner.otherPlayer.king;
-
-      return (this.location.getDirection(king.location) === this.owner.otherPlayer.home + "west" || this.location.getDirection(king.location) === this.owner.otherPlayer.home + "east") && this.location.offset(king.location) === 1;
+      return (this.location.getDirection(king.location) === this.owner.otherPlayer.home + "west" || this.location.getDirection(king.location) === this.owner.otherPlayer.home + "east") && this.location.offset.vertical(king.location) === 1 && this.location.offset.horizontal(king.location) === 1;
     }
   }]);
 
@@ -830,6 +938,7 @@ module.exports = (function () {
     this.owner = owner;
     this.hasMoved = false;
     this.isCaptured = false;
+    this.justCaptured = false;
     location.occupant = this;
     if (!isDummyPiece) {
       var idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
@@ -866,7 +975,10 @@ module.exports = (function () {
     set: function set(location) {
       var Board = require("../controllers/Board");
       this._location._occupant = Board.dummyPiece;
-      if (location.occupant !== Board.dummyPiece) location.occupant.capture();
+      if (location.occupant !== Board.dummyPiece) {
+        location.occupant.capture();
+        this.justCaptured = true;
+      }
       this._location = location;
       location._occupant = this;
     },
@@ -975,6 +1087,7 @@ module.exports = (function (_Piece) {
 
     _this.domElement.className = "piece queen player" + _this.owner.id;
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9813;" : "&#9819;";
+    _this.notation = 'Q';
 
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
@@ -1025,6 +1138,8 @@ module.exports = (function (_Piece) {
 
     _this.domElement.className = "piece rook player" + _this.owner.id;
     _this.domElement.innerHTML = _this.owner.id === 1 ? "&#9814;" : "&#9820;";
+    _this.notation = 'R';
+
     _this.checkLocation = function (location) {
       var moveSucceeded = false;
       if (!Game.moveWillPutOwnerInCheck(this, location) && this.location.isCardinalTo(location) && !Board.pathIsOccupied(this.location, location) && location.occupant.owner !== this.owner && this.owner.isTurnPlayer) moveSucceeded = true;

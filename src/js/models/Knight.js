@@ -9,6 +9,7 @@ module.exports = class Knight extends Piece {
     super(location, owner, false);
     this.domElement.className = "piece knight player" + this.owner.id;
     this.domElement.innerHTML = (this.owner.id === 1) ? "&#9816;" : "&#9822;";
+    this.notation = 'N';
     
     this.checkLocation = function (location) {
       let moveSucceeded = false;

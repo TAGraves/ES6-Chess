@@ -9,6 +9,8 @@ module.exports = class Rook extends Piece {
     super(location, owner, false);
     this.domElement.className = "piece rook player" + this.owner.id;
     this.domElement.innerHTML = (this.owner.id === 1) ? "&#9814;" : "&#9820;";
+    this.notation = 'R';
+    
     this.checkLocation = function (location) {
       let moveSucceeded = false;
       if (

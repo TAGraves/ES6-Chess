@@ -25,6 +25,7 @@
 
 .board {
   width: 400px;
+  float: left;
   border: 5px solid #333;
   -ms-user-select: none;
   -webkit-user-select: none;
@@ -41,8 +42,14 @@
   width: 48px;
   border: 1px solid #000;
 }
+
 .odd .odd, .even .even {
   background: #ccc;
   background: -moz-linear-gradient(top, #ccc, #eee);
   background: -webkit-gradient(linear,0 0, 0 100%, from(#ccc), to(#eee));
+}
+
+#notation {
+  float: left;
+  padding: 20px;
 }

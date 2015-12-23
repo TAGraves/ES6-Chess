@@ -5,6 +5,8 @@ var View = module.exports = {
     let Board = require('./Board');
     let pane = document.getElementById('pane');
     let board = document.createElement('div');
+    
+    pane.innerHTML = "";
     board.className = 'board';
     for (let i = 7; i > -1; i--) {
         let row = document.createElement('div');
@@ -20,13 +22,16 @@ var View = module.exports = {
           square.addEventListener('dragenter', (e) => this.dragAndDrop.enter(e, boardState), false);
           square.addEventListener('dragover', (e) => this.dragAndDrop.over(e, boardState), false);
           square.addEventListener('drop', (e) => this.dragAndDrop.drop(e, boardState), false);
-          square.addEventListener('dragleave', (e) => this.dragAndDrop.exit(e, boardState), false);
           boardState.domElement = square;
           row.appendChild(square);
         }
         board.appendChild(row);
     } 
     pane.appendChild(board);
+    
+    let notation = document.createElement('div');
+    notation.id = 'notation';
+    pane.appendChild(notation);
   },
   putPieceOnBoard: function (piece, location) {
     let View = this;
@@ -40,6 +45,16 @@ var View = module.exports = {
   },
   removePiece: function (piece) {
     piece.parentNode.removeChild(piece);
+  },
+  updateTurn: function (turn, piece) {
+    let notationDiv = document.getElementById('notation');
+    if (piece.owner.id === 1) {
+      notationDiv.innerHTML += turn + ". " + piece.notation + piece.location.name + " ";
+    } else if (turn%3 !== 0) {
+      notationDiv.innerHTML += piece.notation + piece.location.name + " ";
+    } else {
+      notationDiv.innerHTML += piece.notation + piece.location.name + "<br>";
+    }
   },
   updateView: function () {
     var Board = require('./Board');
@@ -56,13 +71,9 @@ var View = module.exports = {
       View.dragAndDrop.piece = piece;
       window.setTimeout(() => e.target.style.opacity = "0.4", 0);
     },
-    exit: function (e, location) {
-      //console.log('exit', location.name);
-    },
     enter: function (e, location) {
       if(View.dragAndDrop.piece.checkLocation(location).success) {
         e.preventDefault(); 
-        console.log('set!');
       }
     },
     over: function (e, location) {
@@ -71,13 +82,11 @@ var View = module.exports = {
     },
     leave: function (e, piece) {},
     drop: function (e, location) {
-      console.log('drop');
       let piece = View.dragAndDrop.piece;
       let square = e.target;
       piece.moveTo(location)
     },
     end: function (e) {
-      //console.log('end');
       View.dragAndDrop.piece = {};
       e.target.style.opacity = "1";
     }

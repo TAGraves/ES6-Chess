@@ -10,6 +10,7 @@ module.exports = class King extends Piece {
     super(location, owner, false);
     this.domElement.className = "piece king player" + this.owner.id;        
     this.domElement.innerHTML = (this.owner.id === 1) ? "&#9812;" : "&#9818;";
+    this.notation = 'K';
     
     this.checkLocation = function (location) {
       let moveSucceeded = false;
@@ -18,12 +19,14 @@ module.exports = class King extends Piece {
         !Game.moveWillPutOwnerInCheck(this, location)
         && location.occupant.owner !== this.owner
         && this.location.offset(location) === 1
+        && this.owner.isTurnPlayer
       ){
         moveSucceeded = true;
       } else if (
         this.location.offset(location) === 2
         && (location.row === this.owner.id-1 || location.row === this.owner.id+5)
         && (location.column === 2 || location.column === 6)
+        && this.owner.isTurnPlayer
       ) {
         let Rook = require("./Rook")
         let direction = this.location.getDirection(location);
