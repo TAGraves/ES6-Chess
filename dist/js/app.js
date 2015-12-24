@@ -416,6 +416,9 @@ var View = module.exports = {
         square.addEventListener('dragenter', function (e) {
           return _this.dragAndDrop.enter(e, boardState);
         }, false);
+        square.addEventListener('dragleave', function (e) {
+          return _this.dragAndDrop.leave(e, boardState);
+        }, false);
         square.addEventListener('dragover', function (e) {
           return _this.dragAndDrop.over(e, boardState);
         }, false);
@@ -487,23 +490,28 @@ var View = module.exports = {
       }, 0);
     },
     enter: function enter(e, location) {
-      if (View.dragAndDrop.piece.checkLocation(location).success) {
-        e.preventDefault();
-      }
+      e.preventDefault();
+      if (View.dragAndDrop.piece.location !== location) location.domElement.className += " active";
     },
     over: function over(e, location) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
     },
-    leave: function leave(e, piece) {},
+    leave: function leave(e, location) {
+      e.preventDefault();
+      if (View.dragAndDrop.piece.location !== location) location.domElement.className = location.domElement.className.replace(/ active/g, "");
+    },
     drop: function drop(e, location) {
       var piece = View.dragAndDrop.piece;
       var square = e.target;
       piece.moveTo(location);
     },
     end: function end(e) {
+      View.dragAndDrop.counter = 0;
       View.dragAndDrop.piece = {};
       e.target.style.opacity = "1";
+      var active = document.querySelector('.active');
+      if (active) active.className = active.className.replace(/active/g, "");
     }
   }
 };

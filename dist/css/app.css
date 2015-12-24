@@ -20,6 +20,8 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
+  position: relative;
+  z-index: 3;
 }
 
 
@@ -41,6 +43,7 @@
   text-align: center;
   width: 48px;
   border: 1px solid #000;
+  position: relative;
 }
 
 .odd .odd, .even .even {
@@ -52,4 +55,16 @@
 #notation {
   float: left;
   padding: 20px;
+}
+
+.active::after{
+  height: 100%;
+  width: 100%;
+  background: #fffccc;
+  position: absolute;
+  z-index: 2;
+  left: 0px;
+  top: 0px;
+  content: "";
+  opacity: .3;
 }

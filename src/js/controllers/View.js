@@ -20,6 +20,7 @@ var View = module.exports = {
           square.id = 'square-' + i.toString() + '-' + j.toString();
           let boardState = Board.state[j][i];
           square.addEventListener('dragenter', (e) => this.dragAndDrop.enter(e, boardState), false);
+          square.addEventListener('dragleave', (e) => this.dragAndDrop.leave(e, boardState), false);
           square.addEventListener('dragover', (e) => this.dragAndDrop.over(e, boardState), false);
           square.addEventListener('drop', (e) => this.dragAndDrop.drop(e, boardState), false);
           boardState.domElement = square;
@@ -79,23 +80,28 @@ var View = module.exports = {
       window.setTimeout(() => e.target.style.opacity = "0.4", 0);
     },
     enter: function (e, location) {
-      if(View.dragAndDrop.piece.checkLocation(location).success) {
-        e.preventDefault(); 
-      }
+      e.preventDefault();
+      if(View.dragAndDrop.piece.location !== location) location.domElement.className += " active";
     },
     over: function (e, location) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
     },
-    leave: function (e, piece) {},
+    leave: function (e, location) {
+      e.preventDefault();
+      if(View.dragAndDrop.piece.location !== location) location.domElement.className = location.domElement.className.replace(/ active/g, "");
+    },
     drop: function (e, location) {
       let piece = View.dragAndDrop.piece;
       let square = e.target;
       piece.moveTo(location)
     },
     end: function (e) {
+      View.dragAndDrop.counter = 0;
       View.dragAndDrop.piece = {};
       e.target.style.opacity = "1";
+      let active = document.querySelector('.active');
+      if (active) active.className = active.className.replace(/active/g, "");
     }
   }
 }
