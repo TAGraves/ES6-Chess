@@ -77,6 +77,8 @@ module.exports = class King extends Piece {
       return Board.setLocation(this, location);
     }
     
+    this.moveIsAmbiguous = () => '';
+    
   }
   
   get threateningCheck() {

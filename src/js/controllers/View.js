@@ -49,7 +49,7 @@ var View = module.exports = {
   },
   updateTurn: function (turn, piece) {
     let notationDiv = document.getElementById('notation'),
-        notation = piece.notation + piece.justCaptured + piece.location.name;
+        notation = piece.notation + piece.ambiguity + piece.justCaptured + piece.location.name;
     
     if (piece.castled) notation = piece.castled;
     if (piece.promoted) {

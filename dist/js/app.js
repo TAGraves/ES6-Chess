@@ -458,7 +458,7 @@ var View = module.exports = {
   },
   updateTurn: function updateTurn(turn, piece) {
     var notationDiv = document.getElementById('notation'),
-        notation = piece.notation + piece.justCaptured + piece.location.name;
+        notation = piece.notation + piece.ambiguity + piece.justCaptured + piece.location.name;
 
     if (piece.castled) notation = piece.castled;
     if (piece.promoted) {
@@ -646,6 +646,10 @@ module.exports = (function (_Piece) {
       this.castled = direction === "west" ? '0-0-0' : '0-0';
       Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)), false);
       return Board.setLocation(this, location);
+    };
+
+    _this.moveIsAmbiguous = function () {
+      return '';
     };
 
     return _this;
@@ -985,6 +989,7 @@ module.exports = (function () {
     this.enPassant = false;
     this.promoted = false;
     this.justCaptured = '';
+    this.ambiguity = '';
     location.occupant = this;
     if (!isDummyPiece) {
       var idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
@@ -1000,6 +1005,9 @@ module.exports = (function () {
           didMove: false,
           piece: Board.dummyPiece
         };
+
+        this.ambiguity = this.moveIsAmbiguous(location);
+
         return Board.setLocation(this, location);
       } else {
         var Game = require("../controllers/Game");
@@ -1013,6 +1021,43 @@ module.exports = (function () {
       this._location = Board.off;
       this.isCaptured = true;
       Board.capture(this);
+    };
+
+    this.moveIsAmbiguous = function (location) {
+      var pieces = this.owner.pieces;
+      var ambiguity = '';
+      var count = 0;
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = pieces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var piece = _step.value;
+
+          if (piece.notation === this.notation && piece.checkLocation(location).success && this !== piece) {
+            console.log(piece.notation, this.notation, piece.checkLocation(location).success);
+            ambiguity = this.location.column === piece.location.column ? this.location.name[1] : this.location.name[0];
+            count++;
+            if (count > 1) ambiguity = this.location.name;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return ambiguity;
     };
   }
 
