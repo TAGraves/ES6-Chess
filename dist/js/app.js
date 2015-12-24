@@ -454,13 +454,20 @@ var View = module.exports = {
     piece.parentNode.removeChild(piece);
   },
   updateTurn: function updateTurn(turn, piece) {
-    var notationDiv = document.getElementById('notation');
+    var notationDiv = document.getElementById('notation'),
+        notation = piece.notation + piece.justCaptured + piece.location.name;
+
+    if (piece.castled) notation = piece.castled;
+    if (piece.promoted) {
+      notation = piece.promoted;
+      piece.promoted = false;
+    }
     if (piece.owner.id === 1) {
-      notationDiv.innerHTML += turn + ". " + piece.notation + piece.location.name + " ";
+      notationDiv.innerHTML += turn + "." + notation + " ";
     } else if (turn % 3 !== 0) {
-      notationDiv.innerHTML += piece.notation + piece.location.name + " ";
+      notationDiv.innerHTML += notation + " ";
     } else {
-      notationDiv.innerHTML += piece.notation + piece.location.name + "<br>";
+      notationDiv.innerHTML += notation + "<br>";
     }
   },
   updateView: function updateView() {
@@ -609,6 +616,7 @@ module.exports = (function (_Piece) {
     _this.moveTo = function (location) {
       var tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        this.castled = false;
         this.owner.justMovedTwo = {
           didMove: false,
           piece: Board.dummyPiece
@@ -627,6 +635,7 @@ module.exports = (function (_Piece) {
       var direction = this.location.getDirection(location);
       var rook = direction === "west" ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
       rook.hasMoved = true;
+      this.castled = direction === "west" ? '0-0-0' : '0-0';
       Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)), false);
       return Board.setLocation(this, location);
     };
@@ -847,6 +856,7 @@ module.exports = (function (_Piece) {
     _this.moveTo = function (location) {
       var tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        this.enPassant = false;
 
         this.owner.justMovedTwo = {
           didMove: false,
@@ -855,6 +865,8 @@ module.exports = (function (_Piece) {
 
         if (tryMove.type === 2) {
           var oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
+          this.enPassant = true;
+          oppOccupant.location.occupant = Board.dummyPiece;
           oppOccupant.capture();
         }
 
@@ -895,14 +907,20 @@ module.exports = (function (_Piece) {
 
       var pieces = require("../controllers/Pieces");
       var piece = new pieces[pieceType](this.location, this.owner);
-
+      var oldLocation = '';
       for (var index in this.owner.pieces) {
         if (this.owner.pieces[index] === this) {
+          oldLocation = this.location.name;
           this.owner.pieces[index] = piece;
           this.capture();
         }
       }
       piece.hasMoved = true;
+      if (location.occupant !== Board.dummyPiece) {
+        piece.promoted = oldLocation[0] + 'x' + location.name + piece.notation;
+      } else {
+        piece.promoted = location.name + piece.notation;
+      }
       Board.setLocation(piece, location);
       return true;
     };
@@ -938,7 +956,9 @@ module.exports = (function () {
     this.owner = owner;
     this.hasMoved = false;
     this.isCaptured = false;
-    this.justCaptured = false;
+    this.enPassant = false;
+    this.promoted = false;
+    this.justCaptured = '';
     location.occupant = this;
     if (!isDummyPiece) {
       var idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
@@ -973,11 +993,16 @@ module.exports = (function () {
   _createClass(Piece, [{
     key: "location",
     set: function set(location) {
+      var Pawn = require("./Pawn");
       var Board = require("../controllers/Board");
+      var oldLocation = this instanceof Pawn ? this.location.name[0] : '';
       this._location._occupant = Board.dummyPiece;
+      this.justCaptured = '';
       if (location.occupant !== Board.dummyPiece) {
         location.occupant.capture();
-        this.justCaptured = true;
+        this.justCaptured = oldLocation + 'x';
+      } else if (this.enPassant) {
+        this.justCaptured = oldLocation + 'x';
       }
       this._location = location;
       location._occupant = this;
@@ -990,7 +1015,7 @@ module.exports = (function () {
   return Piece;
 })();
 
-},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8}],15:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8,"./Pawn":13}],15:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();

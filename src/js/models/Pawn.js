@@ -61,14 +61,17 @@ module.exports = class Pawn extends Piece {
     this.moveTo = function (location) {
       let tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        this.enPassant = false;
         
-          this.owner.justMovedTwo = {
-            didMove: false,
-            piece: Board.dummyPiece
-          }
+        this.owner.justMovedTwo = {
+          didMove: false,
+          piece: Board.dummyPiece
+        };
 
         if (tryMove.type === 2) {
           let oppOccupant = Board.traverse(location, 1, this.owner.home).occupant;
+          this.enPassant = true;
+          oppOccupant.location.occupant = Board.dummyPiece;
           oppOccupant.capture();
         }
         
@@ -104,14 +107,20 @@ module.exports = class Pawn extends Piece {
       
       let pieces = require("../controllers/Pieces");
       let piece = new pieces[pieceType](this.location, this.owner);
-      
+      let oldLocation = '';
       for (let index in this.owner.pieces) {
         if (this.owner.pieces[index] === this) {
+          oldLocation = this.location.name;
           this.owner.pieces[index] = piece;
           this.capture();
         }
       }
       piece.hasMoved = true;
+      if (location.occupant !== Board.dummyPiece) {
+        piece.promoted = oldLocation[0] + 'x' + location.name + piece.notation;
+      } else {
+        piece.promoted = location.name + piece.notation;
+      }
       Board.setLocation(piece, location);
       return true;
     }

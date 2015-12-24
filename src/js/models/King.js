@@ -53,6 +53,7 @@ module.exports = class King extends Piece {
     this.moveTo = function (location) {
       let tryMove = this.checkLocation(location);
       if (tryMove.success) {
+        this.castled = false;
         this.owner.justMovedTwo = {
           didMove: false,
           piece: Board.dummyPiece
@@ -71,6 +72,7 @@ module.exports = class King extends Piece {
       let direction = this.location.getDirection(location);
       let rook = (direction === "west") ? Board.traverse(location, 2, direction).occupant : Board.traverse(location, 1, direction).occupant;
       rook.hasMoved = true;
+      this.castled = (direction === "west") ? '0-0-0' : '0-0';
       Board.setLocation(rook, Board.traverse(location, 1, Direction.reverse(direction)), false);
       return Board.setLocation(this, location);
     }

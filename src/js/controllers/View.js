@@ -47,13 +47,20 @@ var View = module.exports = {
     piece.parentNode.removeChild(piece);
   },
   updateTurn: function (turn, piece) {
-    let notationDiv = document.getElementById('notation');
+    let notationDiv = document.getElementById('notation'),
+        notation = piece.notation + piece.justCaptured + piece.location.name;
+    
+    if (piece.castled) notation = piece.castled;
+    if (piece.promoted) {
+      notation = piece.promoted;
+      piece.promoted = false;
+    }
     if (piece.owner.id === 1) {
-      notationDiv.innerHTML += turn + ". " + piece.notation + piece.location.name + " ";
+      notationDiv.innerHTML += turn + "." + notation + " ";
     } else if (turn%3 !== 0) {
-      notationDiv.innerHTML += piece.notation + piece.location.name + " ";
+      notationDiv.innerHTML += notation + " ";
     } else {
-      notationDiv.innerHTML += piece.notation + piece.location.name + "<br>";
+      notationDiv.innerHTML += notation + "<br>";
     }
   },
   updateView: function () {

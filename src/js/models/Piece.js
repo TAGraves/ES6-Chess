@@ -9,7 +9,9 @@ module.exports = class Piece {
     this.owner = owner;
     this.hasMoved = false;
     this.isCaptured = false;
-    this.justCaptured = false;
+    this.enPassant = false;
+    this.promoted = false;
+    this.justCaptured = '';
     location.occupant = this;
     if(!isDummyPiece) {
       let idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
@@ -42,11 +44,16 @@ module.exports = class Piece {
   }
   
   set location (location) {
+    let Pawn = require("./Pawn");
     let Board = require("../controllers/Board");
+    let oldLocation = (this instanceof Pawn) ? this.location.name[0] : '';
     this._location._occupant = Board.dummyPiece;
+    this.justCaptured = '';
     if (location.occupant !== Board.dummyPiece) {
       location.occupant.capture();
-      this.justCaptured = true;
+      this.justCaptured = oldLocation + 'x';
+    } else if (this.enPassant) {
+      this.justCaptured = oldLocation + 'x';
     }
     this._location = location;
     location._occupant = this;
