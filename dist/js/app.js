@@ -797,6 +797,10 @@ module.exports = (function () {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _set = function set(object, property, value, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent !== null) { set(parent, property, value, receiver); } } else if ("value" in desc && desc.writable) { desc.value = value; } else { var setter = desc.set; if (setter !== undefined) { setter.call(receiver, value); } } return value; };
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -941,6 +945,20 @@ module.exports = (function (_Piece) {
       var king = this.owner.otherPlayer.king;
       return (this.location.getDirection(king.location) === this.owner.otherPlayer.home + "west" || this.location.getDirection(king.location) === this.owner.otherPlayer.home + "east") && this.location.offset.vertical(king.location) === 1 && this.location.offset.horizontal(king.location) === 1;
     }
+  }, {
+    key: "location",
+    set: function set(location) {
+      var oldLocation = this.location.name[0];
+      _set(Object.getPrototypeOf(Pawn.prototype), "location", location, this);
+      if (this.justCaptured === 'x') {
+        this.justCaptured = oldLocation + 'x';
+      } else if (this.enPassant) {
+        this.justCaptured = oldLocation + 'x';
+      }
+    },
+    get: function get() {
+      return _get(Object.getPrototypeOf(Pawn.prototype), "location", this);
+    }
   }]);
 
   return Pawn;
@@ -1001,16 +1019,12 @@ module.exports = (function () {
   _createClass(Piece, [{
     key: "location",
     set: function set(location) {
-      var Pawn = require("./Pawn");
       var Board = require("../controllers/Board");
-      var oldLocation = this instanceof Pawn ? this.location.name[0] : '';
       this._location._occupant = Board.dummyPiece;
       this.justCaptured = '';
       if (location.occupant !== Board.dummyPiece) {
         location.occupant.capture();
-        this.justCaptured = oldLocation + 'x';
-      } else if (this.enPassant) {
-        this.justCaptured = oldLocation + 'x';
+        this.justCaptured = 'x';
       }
       this._location = location;
       location._occupant = this;
@@ -1023,7 +1037,7 @@ module.exports = (function () {
   return Piece;
 })();
 
-},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8,"./Pawn":13}],15:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8}],15:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();

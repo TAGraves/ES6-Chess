@@ -133,5 +133,19 @@ module.exports = class Pawn extends Piece {
          && this.location.offset.vertical(king.location) === 1
          && this.location.offset.horizontal(king.location) === 1);
   }
+  
+  set location(location) {
+    let oldLocation = this.location.name[0];
+    super.location = location;
+    if (this.justCaptured === 'x') {
+      this.justCaptured = oldLocation + 'x';
+    } else if (this.enPassant) {
+      this.justCaptured = oldLocation + 'x';
+    }
+  }
+  
+  get location() {
+    return super.location;
+  }
 
 }
