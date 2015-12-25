@@ -45,7 +45,8 @@ var Game = module.exports = {
         }
       }
       
-      if (!freeMove) {
+      if (!freeMove) {        
+        document.getElementById('notation').innerHTML = document.getElementById('notation').innerHTML.replace(/\+(?=[^\+]*$)/, "#");
         alert('Checkmate! Good day, sir!');
         document.getElementById('startButton').style.display = "block";
       }

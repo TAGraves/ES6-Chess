@@ -297,6 +297,7 @@ var Game = module.exports = {
       }
 
       if (!freeMove) {
+        document.getElementById('notation').innerHTML = document.getElementById('notation').innerHTML.replace(/\+(?=[^\+]*$)/, "#");
         alert('Checkmate! Good day, sir!');
         document.getElementById('startButton').style.display = "block";
       }
@@ -458,13 +459,16 @@ var View = module.exports = {
   },
   updateTurn: function updateTurn(turn, piece) {
     var notationDiv = document.getElementById('notation'),
-        notation = piece.notation + piece.ambiguity + piece.justCaptured + piece.location.name;
-
+        notation = piece.notation + piece.ambiguity + piece.justCaptured + piece.location.name,
+        Game = require("./Game");
     if (piece.castled) notation = piece.castled;
     if (piece.promoted) {
       notation = piece.promoted;
       piece.promoted = false;
     }
+
+    if (Game.moveWillPutOwnerInCheck(piece.owner.otherPlayer.pieces[4], piece.owner.otherPlayer.pieces[4].location)) notation += '+';
+
     if (piece.owner.id === 1) {
       notationDiv.innerHTML += turn + "." + notation + " ";
     } else if (turn % 3 !== 0) {
@@ -516,7 +520,7 @@ var View = module.exports = {
   }
 };
 
-},{"./Board":2}],9:[function(require,module,exports){
+},{"./Board":2,"./Game":4}],9:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();

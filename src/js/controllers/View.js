@@ -49,13 +49,16 @@ var View = module.exports = {
   },
   updateTurn: function (turn, piece) {
     let notationDiv = document.getElementById('notation'),
-        notation = piece.notation + piece.ambiguity + piece.justCaptured + piece.location.name;
-    
+        notation = piece.notation + piece.ambiguity + piece.justCaptured + piece.location.name,
+        Game = require("./Game");
     if (piece.castled) notation = piece.castled;
     if (piece.promoted) {
       notation = piece.promoted;
       piece.promoted = false;
     }
+    
+    if (Game.moveWillPutOwnerInCheck(piece.owner.otherPlayer.pieces[4], piece.owner.otherPlayer.pieces[4].location)) notation += '+';
+    
     if (piece.owner.id === 1) {
       notationDiv.innerHTML += turn + "." + notation + " ";
     } else if (turn%3 !== 0) {
