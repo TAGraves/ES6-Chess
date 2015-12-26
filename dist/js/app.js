@@ -101,7 +101,7 @@ var Board = module.exports = {
 
 };
 
-},{"../models/Location":12,"../models/Piece":14,"./Game":4,"./View":8}],3:[function(require,module,exports){
+},{"../models/Location":12,"../models/Piece":15,"./Game":4,"./View":8}],3:[function(require,module,exports){
 "use strict";
 
 var Board = require("./Board");
@@ -351,7 +351,7 @@ var Pieces = module.exports = {
   }
 };
 
-},{"../models/Bishop":9,"../models/King":10,"../models/Knight":11,"../models/Pawn":13,"../models/Piece":14,"../models/Queen":16,"../models/Rook":17,"./Board":2}],6:[function(require,module,exports){
+},{"../models/Bishop":9,"../models/King":10,"../models/Knight":11,"../models/Pawn":14,"../models/Piece":15,"../models/Queen":17,"../models/Rook":18,"./Board":2}],6:[function(require,module,exports){
 "use strict";
 
 var Pieces = require("./Pieces");
@@ -374,13 +374,13 @@ var Players = module.exports = {
   }
 };
 
-},{"../models/Player":15,"./Pieces":5}],7:[function(require,module,exports){
+},{"../models/Player":16,"./Pieces":5}],7:[function(require,module,exports){
 "use strict";
 
 var Board = require("./Board");
 var Players = require("./Players");
 var Game = require("./Game");
-
+var Move = require("../models/Move");
 var Setup = module.exports = function () {
   Board.makeState();
   Board.makeView();
@@ -389,7 +389,7 @@ var Setup = module.exports = function () {
   Game.debug();
 };
 
-},{"./Board":2,"./Game":4,"./Players":6}],8:[function(require,module,exports){
+},{"../models/Move":13,"./Board":2,"./Game":4,"./Players":6}],8:[function(require,module,exports){
 "use strict";
 
 var View = module.exports = {
@@ -575,7 +575,7 @@ module.exports = (function (_Piece) {
   return Bishop;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}],10:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":15}],10:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -669,7 +669,7 @@ module.exports = (function (_Piece) {
   return King;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Direction":3,"../controllers/Game":4,"./Piece":14,"./Rook":17}],11:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Direction":3,"../controllers/Game":4,"./Piece":15,"./Rook":18}],11:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -724,7 +724,7 @@ module.exports = (function (_Piece) {
   return Knight;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}],12:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":15}],12:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -801,6 +801,33 @@ module.exports = (function () {
 })();
 
 },{"../controllers/Board":2,"../controllers/Direction":3}],13:[function(require,module,exports){
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Board = require("../controllers/Board");
+
+var Move = function Move(piece, destination) {
+  var modals = arguments.length <= 2 || arguments[2] === undefined ? { isEnPassant: false, isCastle: false, capturePiece: Board.dummyPiece } : arguments[2];
+
+  _classCallCheck(this, Move);
+
+  this.piece = piece;
+  this.origin = piece.location;
+  this.destination = destination;
+
+  this.capture = modals.isEnPassant || destination.isOccupied;
+
+  if (this.capture) this.capturePiece = modals.isEnPassant ? modals.capturePiece : destination.occupant;
+  this.processMove = function () {
+    Move.moveList.push();
+  };
+};
+
+Move.moveList = [];
+module.exports = Move;
+
+},{"../controllers/Board":2}],14:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -972,7 +999,7 @@ module.exports = (function (_Piece) {
   return Pawn;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Pieces":5,"../controllers/Players":6,"./Piece":14}],14:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/Pieces":5,"../controllers/Players":6,"./Piece":15}],15:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -1086,7 +1113,7 @@ module.exports = (function () {
   return Piece;
 })();
 
-},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8}],15:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"../controllers/View":8}],16:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -1158,7 +1185,7 @@ module.exports = (function () {
   return Player;
 })();
 
-},{"../controllers/Players":6}],16:[function(require,module,exports){
+},{"../controllers/Players":6}],17:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -1209,7 +1236,7 @@ module.exports = (function (_Piece) {
   return Queen;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}],17:[function(require,module,exports){
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":15}],18:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -1260,4 +1287,4 @@ module.exports = (function (_Piece) {
   return Rook;
 })(Piece);
 
-},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":14}]},{},[1]);
+},{"../controllers/Board":2,"../controllers/Game":4,"./Piece":15}]},{},[1]);

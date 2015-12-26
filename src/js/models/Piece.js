@@ -9,10 +9,6 @@ module.exports = class Piece {
     this.owner = owner;
     this.hasMoved = false;
     this.isCaptured = false;
-    this.enPassant = false;
-    this.promoted = false;
-    this.justCaptured = '';
-    this.ambiguity = '';
     location.occupant = this;
     if(!isDummyPiece) {
       let idString = "pieceInit-" + location.column.toString() + "-" + location.row.toString();
@@ -21,17 +17,13 @@ module.exports = class Piece {
     }
     
     this.moveTo = function (location) {
-      let Board = require("../controllers/Board");
+      let Board = require("../controllers/Board"),
+          Move = require("./Move");
       if (this.checkLocation(location).success) {
         this.hasMoved = true;
-        this.owner.justMovedTwo = {
-          didMove: false,
-          piece: Board.dummyPiece
-        }
-        
-        this.ambiguity = this.moveIsAmbiguous(location);
-        
-        return Board.setLocation(this, location);
+        let move = new Move(this, location);        
+        move.notation.ambiguity = this.moveIsAmbiguous(location);
+        return move.processMove();
       } else {
         let Game = require("../controllers/Game");
         Game.throwError.illegalMove();
@@ -66,10 +58,10 @@ module.exports = class Piece {
   set location (location) {
     let Board = require("../controllers/Board");
     this._location._occupant = Board.dummyPiece;
-    this.justCaptured = '';
+    this.lastMove.notation.justCaptured = '';
     if (location.occupant !== Board.dummyPiece) {
       location.occupant.capture();
-      this.justCaptured = 'x';
+      this.lastMove.notation.justCaptured = 'x';
     }
     this._location = location;
     location._occupant = this;

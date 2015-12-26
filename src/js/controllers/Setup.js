@@ -3,7 +3,7 @@
 var Board = require("./Board");
 var Players = require("./Players");
 var Game = require("./Game");
-
+var Move = require("../models/Move");
 var Setup = module.exports = function () {
   Board.makeState();
   Board.makeView();
